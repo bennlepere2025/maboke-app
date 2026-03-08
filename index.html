@@ -862,10 +862,13 @@
             Plats : 0 FCFA
           </p>
           <p class="payment-note" id="payment-summary-app-tax">
-            Taxe application (25 %) : 0 FCFA
+            Taxe application (1 %) : 0 FCFA
           </p>
           <p class="payment-note" id="payment-summary-momo">
             Frais MoMo estimés : 0 FCFA
+          </p>
+          <p class="payment-note" id="payment-summary-delivery">
+            Livraison : 0 FCFA
           </p>
           <p class="payment-note" id="payment-summary-total">
             Total à payer : 0 FCFA
@@ -913,6 +916,7 @@
       const paymentSummarySubtotal = document.getElementById('payment-summary-subtotal');
       const paymentSummaryAppTax = document.getElementById('payment-summary-app-tax');
       const paymentSummaryMomo = document.getElementById('payment-summary-momo');
+      const paymentSummaryDelivery = document.getElementById('payment-summary-delivery');
       const paymentSummaryTotal = document.getElementById('payment-summary-total');
 
       // Connexion Supabase (même projet que vendeuse.html)
@@ -1048,28 +1052,32 @@
 
       function computePaymentBreakdown() {
         const totalPlats = getCartTotal();
-        const taxeApp = Math.round(totalPlats * 0.25);
+        const taxeApp = Math.round(totalPlats * 0.01);
         const momoRate = 350 / 10000; // 350 FCFA pour 10 000 FCFA
         const fraisMomo = selectedPaymentMethod === 'mtn'
           ? Math.round(totalPlats * momoRate)
           : 0;
-        const totalFinal = totalPlats + taxeApp + fraisMomo;
-        return { totalPlats, taxeApp, fraisMomo, totalFinal };
+        const livraison = cart.size ? 800 : 0;
+        const totalFinal = totalPlats + taxeApp + fraisMomo + livraison;
+        return { totalPlats, taxeApp, fraisMomo, livraison, totalFinal };
       }
 
       function updatePaymentSummary() {
-        const { totalPlats, taxeApp, fraisMomo, totalFinal } = computePaymentBreakdown();
+        const { totalPlats, taxeApp, fraisMomo, livraison, totalFinal } = computePaymentBreakdown();
         if (paymentSummarySubtotal) {
           paymentSummarySubtotal.textContent = `Plats : ${formatPrice(totalPlats)}`;
         }
         if (paymentSummaryAppTax) {
-          paymentSummaryAppTax.textContent = `Taxe application (25 %) : ${formatPrice(taxeApp)}`;
+          paymentSummaryAppTax.textContent = `Taxe application (1 %) : ${formatPrice(taxeApp)}`;
         }
         if (paymentSummaryMomo) {
           const label = selectedPaymentMethod === 'mtn'
             ? 'Frais MoMo estimés'
             : 'Frais MoMo estimés (0 FCFA pour ce moyen de paiement)';
           paymentSummaryMomo.textContent = `${label} : ${formatPrice(fraisMomo)}`;
+        }
+        if (paymentSummaryDelivery) {
+          paymentSummaryDelivery.textContent = `Livraison : ${formatPrice(livraison)}`;
         }
         if (paymentSummaryTotal) {
           paymentSummaryTotal.textContent = `Total à payer : ${formatPrice(totalFinal)}`;
