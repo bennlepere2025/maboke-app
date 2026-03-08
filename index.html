@@ -581,6 +581,115 @@
       font-size: 0.86rem;
     }
 
+    .payment-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 30;
+    }
+
+    .payment-modal.open {
+      display: flex;
+    }
+
+    .payment-modal-card {
+      width: 100%;
+      max-width: 360px;
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.2), rgba(15, 23, 42, 0.98));
+      border-radius: 20px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .payment-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .payment-modal-header h2 {
+      font-size: 0.98rem;
+    }
+
+    .payment-close-btn {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .payment-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .payment-method-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .payment-method-btn.payment-mtn.active {
+      background: linear-gradient(135deg, #facc15, #fbbf24);
+      border-color: #facc15;
+      color: #1f2937;
+      box-shadow: 0 14px 28px rgba(250, 204, 21, 0.45);
+    }
+
+    .payment-method-btn.payment-airtel.active {
+      background: linear-gradient(135deg, #ef4444, #fb7185);
+      border-color: #ef4444;
+      color: #fef2f2;
+      box-shadow: 0 14px 28px rgba(239, 68, 68, 0.45);
+    }
+
+    .payment-merchant {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .payment-merchant span {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    .payment-confirm-btn {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      box-shadow: 0 16px 30px rgba(34, 197, 94, 0.55);
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 8px;
@@ -774,10 +883,44 @@
           <span class="total-value" id="cart-total">0 FCFA</span>
         </div>
         <button class="checkout-btn" type="button" id="checkout-btn">
-          <span>Commander maintenant</span> ➜
+          <span>Payer</span> ➜
         </button>
       </footer>
     </aside>
+
+    <div class="payment-modal" id="payment-modal" aria-hidden="true">
+      <div class="payment-modal-card" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+        <div class="payment-modal-header">
+          <h2 id="payment-title">Choisir le moyen de paiement</h2>
+          <button class="payment-close-btn" type="button" id="payment-close">✕</button>
+        </div>
+        <p class="payment-text">
+          Sélectionnez comment vous souhaitez payer votre commande.
+        </p>
+        <div class="payment-methods">
+          <button
+            class="payment-method-btn payment-mtn active"
+            type="button"
+            data-payment-method="mtn"
+          >
+            MTN MoMo
+          </button>
+          <button
+            class="payment-method-btn payment-airtel"
+            type="button"
+            data-payment-method="airtel"
+          >
+            Airtel Money
+          </button>
+        </div>
+        <p class="payment-merchant">
+          Numéro marchand : <span>+242 06 614 29 33</span>
+        </p>
+        <button class="payment-confirm-btn" type="button" id="payment-confirm">
+          J'ai envoyé le paiement
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -792,11 +935,24 @@
       const cartSummaryEl = document.getElementById('cart-summary');
       const cartTotalEl = document.getElementById('cart-total');
       const checkoutBtn = document.getElementById('checkout-btn');
+      const paymentModal = document.getElementById('payment-modal');
+      const paymentConfirmBtn = document.getElementById('payment-confirm');
+      const paymentCloseBtn = document.getElementById('payment-close');
+      const paymentMethodButtons = document.querySelectorAll('[data-payment-method]');
 
       const cart = new Map(); // key: id, value: { id, name, price, qty }
+      let selectedPaymentMethod = 'mtn';
 
       function formatPrice(value) {
         return value.toLocaleString('fr-FR') + ' FCFA';
+      }
+
+      function getCartTotal() {
+        let total = 0;
+        cart.forEach(item => {
+          total += item.price * item.qty;
+        });
+        return total;
       }
 
       function updateCartDisplay() {
@@ -886,32 +1042,80 @@
         toggleDrawer();
       });
 
-      checkoutBtn.addEventListener('click', () => {
+      function openPaymentModal() {
         if (!cart.size) {
           alert('Votre panier est vide pour le moment.');
+          return;
+        }
+
+        selectedPaymentMethod = 'mtn';
+        paymentMethodButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.paymentMethod === selectedPaymentMethod);
+        });
+
+        paymentModal.classList.add('open');
+      }
+
+      function closePaymentModal() {
+        paymentModal.classList.remove('open');
+      }
+
+      checkoutBtn.addEventListener('click', openPaymentModal);
+
+      paymentMethodButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedPaymentMethod = btn.dataset.paymentMethod;
+          paymentMethodButtons.forEach(b => b.classList.toggle('active', b === btn));
+        });
+      });
+
+      paymentConfirmBtn.addEventListener('click', () => {
+        if (!cart.size) {
+          alert('Votre panier est vide pour le moment.');
+          closePaymentModal();
+          return;
+        }
+
+        if (!selectedPaymentMethod) {
+          alert('Veuillez choisir un moyen de paiement.');
           return;
         }
 
         const phone = '24266142933'; // numéro sans le "+"
 
         let ligneCommande = '';
-        let total = 0;
         cart.forEach((item) => {
-          total += item.price * item.qty;
           ligneCommande += `\n- ${item.name} x${item.qty}`;
         });
 
+        const total = getCartTotal();
+        const totalAvecCommission = Math.round(total * 1.25);
+        const moyenText = selectedPaymentMethod === 'airtel' ? 'Airtel Money' : 'MTN MoMo';
+
         const message = [
-          'Bonjour Maboke, je souhaite passer une commande !',
+          "Bonjour Maboke, j'ai envoyé le paiement pour ma commande.",
+          '',
+          `Moyen de paiement : ${moyenText}`,
+          'Numéro marchand : +242066142933',
           '',
           'Détail de ma commande :',
           ligneCommande.trim(),
           '',
-          `Total estimé : ${total.toLocaleString('fr-FR')} FCFA`
+          `Montant du panier : ${total.toLocaleString('fr-FR')} FCFA`,
+          `Montant avec commission (25%) : ${totalAvecCommission.toLocaleString('fr-FR')} FCFA`
         ].join('\n');
 
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
+        closePaymentModal();
+      });
+
+      paymentCloseBtn.addEventListener('click', closePaymentModal);
+
+      paymentModal.addEventListener('click', (event) => {
+        if (event.target === paymentModal) {
+          closePaymentModal();
+        }
       });
 
       function applyFilters() {
