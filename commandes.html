@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maboke — Commander</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green:   #16a34a;
+      --green-l: #22c55e;
+      --orange:  #ea580c;
+      --orange-l:#f97316;
+      --gold:    #facc15;
+      --bg:      #060a0f;
+      --card:    #0d1520;
+      --card2:   #0b1628;
+      --border:  rgba(255,255,255,0.08);
+      --text:    #f1f5f9;
+      --muted:   #64748b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── BG ── */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12; animation: drift 16s ease-in-out infinite alternate; }
+    .bg-blob:nth-child(1) { width:600px; height:600px; background:#16a34a; top:-150px; left:-100px; animation-delay:0s; }
+    .bg-blob:nth-child(2) { width:450px; height:450px; background:#ea580c; bottom:-100px; right:-100px; animation-delay:-7s; }
+    .bg-blob:nth-child(3) { width:320px; height:320px; background:#facc15; top:50%; left:60%; animation-delay:-12s; }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(28px,18px) scale(1.06); }
+    }
+
+    /* ── LAYOUT ── */
+    #page {
+      position: relative; z-index: 1;
+      max-width: 520px; margin: 0 auto;
+      padding: 0 0 140px; /* espace pour le panier sticky */
+    }
+
+    /* ── TOP NAV ── */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: rgba(6,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; transition: background 0.18s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.1); transform: translateX(-2px); }
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 800;
+      background: linear-gradient(135deg, #22c55e, #f97316, #facc15);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .nav-title { font-size: 0.78rem; color: var(--muted); margin-left: 2px; }
+    .nav-user {
+      margin-left: auto; font-size: 0.75rem; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+    }
+
+    /* ── HERO SEARCH ── */
+    .hero-section {
+      padding: 20px 16px 0;
+      animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .hero-greeting { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
+    .hero-title {
+      font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+      line-height: 1.2; margin-bottom: 14px;
+    }
+    .hero-title em {
+      font-style: normal;
+      background: linear-gradient(90deg, #22c55e, #f97316);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .search-wrap {
+      position: relative; margin-bottom: 18px;
+    }
+    .search-wrap .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 0.9rem; pointer-events: none;
+    }
+    .search-input {
+      width: 100%; padding: 11px 14px 11px 40px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; color: var(--text);
+      font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.18s, background 0.18s;
+    }
+    .search-input:focus { border-color: rgba(22,163,74,0.5); background: rgba(22,163,74,0.04); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* ── FILTRES QUARTIER ── */
+    .quartier-filters {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .quartier-filters::-webkit-scrollbar { display: none; }
+    .q-filter {
+      flex-shrink: 0; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.73rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s; white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .q-filter.active {
+      background: rgba(22,163,74,0.15); border-color: rgba(22,163,74,0.5); color: #4ade80;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); padding: 16px 16px 8px;
+    }
+
+    /* ── VENDEUR STRIP ── */
+    .vendeur-strip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; margin-bottom: 6px;
+      background: rgba(234,88,12,0.06); border-top: 1px solid rgba(234,88,12,0.15);
+      border-bottom: 1px solid rgba(234,88,12,0.15);
+    }
+    .vendeur-avatar {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #ea580c, #facc15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .vendeur-name { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; }
+    .vendeur-loc { font-size: 0.68rem; color: var(--muted); }
+    .vendeur-badge {
+      margin-left: auto; padding: 3px 9px; border-radius: 999px;
+      background: rgba(22,163,74,0.12); border: 1px solid rgba(22,163,74,0.3);
+      color: #4ade80; font-size: 0.62rem; font-weight: 700;
+    }
+
+    /* ── PLAT CARDS ── */
+    .plats-grid {
+      padding: 0 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .plat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 14px;
+      display: flex; gap: 12px; align-items: flex-start;
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .plat-card:hover { border-color: rgba(22,163,74,0.3); transform: translateY(-2px); }
+    .plat-card.out-of-stock { opacity: 0.5; pointer-events: none; }
+
+    .plat-emoji {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem; flex-shrink: 0;
+    }
+    .plat-info { flex: 1; min-width: 0; }
+    .plat-name { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; }
+    .plat-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+    .plat-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .plat-price {
+      font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800;
+      color: #4ade80;
+    }
+    .plat-stock { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
+
+    .plat-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .stock-badge {
+      padding: 2px 8px; border-radius: 6px; font-size: 0.62rem; font-weight: 700;
+    }
+    .sb-ok  { background: rgba(22,163,74,0.14); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .sb-low { background: rgba(250,204,21,0.14); color: #fde047; border: 1px solid rgba(250,204,21,0.4); }
+    .sb-out { background: rgba(239,68,68,0.14);  color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+
+    .qty-ctrl {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text); font-size: 1rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      line-height: 1;
+    }
+    .qty-btn.plus {
+      background: rgba(22,163,74,0.15); border-color: rgba(22,163,74,0.4); color: #4ade80;
+    }
+    .qty-btn.plus:hover { background: rgba(22,163,74,0.28); }
+    .qty-btn.minus:hover { background: rgba(255,255,255,0.1); }
+    .qty-val {
+      font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700;
+      min-width: 16px; text-align: center;
+    }
+
+    /* ── PANIER STICKY ── */
+    .panier-bar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 520px;
+      padding: 12px 16px 20px;
+      background: rgba(6,10,15,0.96);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      z-index: 60;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    }
+    .panier-bar.hidden { transform: translateX(-50%) translateY(100%); opacity: 0; pointer-events: none; }
+
+    .panier-summary {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .panier-label { font-size: 0.75rem; color: var(--muted); }
+    .panier-total {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+      background: linear-gradient(135deg, #22c55e, #f97316);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .panier-count {
+      background: rgba(22,163,74,0.15); border: 1px solid rgba(22,163,74,0.3);
+      color: #4ade80; padding: 2px 9px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700;
+    }
+
+    .commander-btn {
+      width: 100%; padding: 14px;
+      border-radius: 16px; border: none;
+      font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800;
+      letter-spacing: 0.04em; cursor: pointer;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #022c22;
+      box-shadow: 0 8px 32px rgba(22,163,74,0.4);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s, filter 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .commander-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.15), transparent);
+    }
+    .commander-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+
+    /* ── MODAL PAIEMENT ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(6,10,15,0.9); backdrop-filter: blur(12px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px 28px 0 0;
+      padding: 8px 0 0;
+      width: 100%; max-width: 520px;
+      transform: translateY(100%);
+      transition: transform 0.38s cubic-bezier(0.34,1.2,0.64,1);
+      max-height: 92vh; overflow-y: auto;
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+
+    .modal-handle {
+      width: 40px; height: 4px; border-radius: 999px;
+      background: rgba(255,255,255,0.15);
+      margin: 0 auto 18px;
+    }
+    .modal-inner { padding: 0 20px 32px; }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .modal-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 20px; }
+
+    /* Récap commande dans modal */
+    .recap-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .recap-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-radius: 11px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .recap-row .rname { color: var(--text); }
+    .recap-row .rprice { font-family: 'Syne', sans-serif; font-weight: 700; color: #4ade80; }
+
+    .recap-total {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; border-radius: 13px;
+      background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.2);
+      margin-bottom: 20px;
+    }
+    .recap-total .label { font-size: 0.8rem; color: var(--muted); }
+    .recap-total .amount {
+      font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800;
+      background: linear-gradient(135deg, #22c55e, #facc15);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    /* Livraison */
+    .livraison-section { margin-bottom: 18px; }
+    .livraison-label {
+      font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .livraison-info {
+      padding: 10px 13px; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .field-modal { margin-bottom: 12px; }
+    .field-modal label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 5px; }
+    .input-modal {
+      width: 100%; padding: 10px 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text);
+      font-size: 0.84rem; font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.18s;
+    }
+    .input-modal:focus { border-color: rgba(22,163,74,0.5); }
+    .input-modal::placeholder { color: var(--muted); }
+
+    /* Paiement */
+    .paiement-section { margin-bottom: 20px; }
+    .paiement-label {
+      font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .momo-options { display: flex; gap: 10px; margin-bottom: 14px; }
+    .momo-opt {
+      flex: 1; padding: 14px 10px; border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer; text-align: center;
+      transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    }
+    .momo-opt:hover { transform: translateY(-2px); }
+    .momo-opt .momo-icon { font-size: 1.6rem; margin-bottom: 5px; }
+    .momo-opt .momo-name { font-size: 0.78rem; font-weight: 700; }
+    .momo-opt .momo-desc { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+    .momo-opt.mtn.selected {
+      background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.5);
+    }
+    .momo-opt.mtn.selected .momo-name { color: #facc15; }
+    .momo-opt.airtel.selected {
+      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.5);
+    }
+    .momo-opt.airtel.selected .momo-name { color: #f87171; }
+
+    .momo-number-field { display: none; }
+    .momo-number-field.show { display: block; }
+
+    /* Confirm btn */
+    .confirm-btn {
+      width: 100%; padding: 14px;
+      border-radius: 15px; border: none;
+      font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 800;
+      cursor: pointer; letter-spacing: 0.04em;
+      transition: transform 0.15s, filter 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .confirm-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(rgba(255,255,255,0.12),transparent); }
+    .confirm-btn.mtn-pay {
+      background: linear-gradient(135deg, #ca8a04, #facc15);
+      color: #1c1003;
+      box-shadow: 0 8px 28px rgba(250,204,21,0.35);
+    }
+    .confirm-btn.airtel-pay {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: #fff;
+      box-shadow: 0 8px 28px rgba(239,68,68,0.35);
+    }
+    .confirm-btn.default-pay {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #022c22;
+      box-shadow: 0 8px 28px rgba(22,163,74,0.35);
+    }
+    .confirm-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .confirm-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-inner { position: relative; z-index: 1; }
+
+    /* ── SUCCESS ── */
+    .success-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(6,10,15,0.95); backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .success-overlay.show { opacity: 1; pointer-events: all; }
+    .success-box {
+      background: var(--card); border: 1px solid rgba(22,163,74,0.3);
+      border-radius: 28px; padding: 32px 24px;
+      text-align: center; max-width: 360px; width: 100%;
+      transform: scale(0.88);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .success-overlay.show .success-box { transform: scale(1); }
+    .success-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(22,163,74,0.12); border: 2px solid rgba(22,163,74,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 16px;
+      animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+    }
+    @keyframes bounceIn { from{transform:scale(0);} to{transform:scale(1);} }
+    .success-title {
+      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
+      color: #4ade80; margin-bottom: 8px;
+    }
+    .success-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 22px; }
+    .success-ref {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 16px;
+      font-family: 'Syne', sans-serif; font-size: 0.78rem;
+      color: var(--muted); margin-bottom: 20px;
+    }
+    .success-ref strong { color: #facc15; }
+    .back-home-btn {
+      width: 100%; padding: 12px; border-radius: 14px; border: none;
+      font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #022c22; cursor: pointer;
+      box-shadow: 0 6px 24px rgba(22,163,74,0.3);
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .back-home-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+
+    /* ── EMPTY STATE ── */
+    .empty-catalogue {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    .empty-catalogue .ei { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 160px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--card); border: 1px solid rgba(22,163,74,0.35);
+      border-radius: 12px; padding: 10px 18px;
+      font-size: 0.78rem; color: #86efac; z-index: 300;
+      white-space: nowrap; opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 480px) { #page { padding-bottom: 150px; } }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
+
+<div id="page">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <a class="back-btn" href="index.html">←</a>
+    <span style="font-size:1.1rem;">🍲</span>
+    <span class="nav-logo">Maboke</span>
+    <span class="nav-title">· Commander</span>
+    <span class="nav-user" id="nav-user">—</span>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero-section">
+    <div class="hero-greeting" id="hero-greeting">Bonjour 👋</div>
+    <h1 class="hero-title">Que voulez-vous<br /><em>manger aujourd'hui ?</em></h1>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text"
+             placeholder="Chercher un plat… (saka-saka, poulet…)"
+             oninput="filterPlats()" />
+    </div>
+
+    <!-- Filtres quartier -->
+    <div class="quartier-filters" id="quartier-filters">
+      <button class="q-filter active" data-q="tous" onclick="setQuartier(this)">🏙️ Tous</button>
+      <button class="q-filter" data-q="poto-poto" onclick="setQuartier(this)">Poto-Poto</button>
+      <button class="q-filter" data-q="bacongo" onclick="setQuartier(this)">Bacongo</button>
+      <button class="q-filter" data-q="talangai" onclick="setQuartier(this)">Talangaï</button>
+      <button class="q-filter" data-q="moungali" onclick="setQuartier(this)">Moungali</button>
+    </div>
+  </div>
+
+  <!-- CATALOGUE -->
+  <p class="section-label" id="catalogue-label">🍽️ Plats disponibles</p>
+  <div id="catalogue-container"></div>
+
+</div><!-- /#page -->
+
+<!-- PANIER STICKY -->
+<div class="panier-bar hidden" id="panier-bar">
+  <div class="panier-summary">
+    <div>
+      <div class="panier-label">Mon panier</div>
+      <div class="panier-total" id="panier-total">0 FCFA</div>
+    </div>
+    <span class="panier-count" id="panier-count">0 article(s)</span>
+  </div>
+  <button class="commander-btn" onclick="openModal()">
+    <span class="btn-inner">🛒 Valider ma commande →</span>
+  </button>
+</div>
+
+<!-- MODAL PAIEMENT -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Récapitulatif & Paiement</div>
+      <div class="modal-sub">Vérifiez votre commande et choisissez votre mode de paiement</div>
+
+      <!-- Récap -->
+      <div class="recap-list" id="recap-list"></div>
+      <div class="recap-total">
+        <span class="label">Total à payer</span>
+        <span class="amount" id="recap-total-amount">0 FCFA</span>
+      </div>
+
+      <!-- Infos livraison -->
+      <div class="livraison-section">
+        <div class="livraison-label">📍 Adresse de livraison</div>
+        <div class="livraison-info" id="livraison-info">🏘️ Chargement…</div>
+        <div class="field-modal" style="margin-top:8px;">
+          <label>Précisions (optionnel)</label>
+          <input class="input-modal" id="adresse-detail" placeholder="Ex : Bâtiment rouge, 2ème porte à gauche" />
+        </div>
+      </div>
+
+      <!-- Paiement -->
+      <div class="paiement-section">
+        <div class="paiement-label">💳 Mode de paiement</div>
+        <div class="momo-options">
+          <div class="momo-opt mtn" onclick="selectPaiement('mtn')">
+            <div class="momo-icon">⭐</div>
+            <div class="momo-name">MTN MoMo</div>
+            <div class="momo-desc">Mobile Money</div>
+          </div>
+          <div class="momo-opt airtel" onclick="selectPaiement('airtel')">
+            <div class="momo-icon">🔴</div>
+            <div class="momo-name">Airtel Money</div>
+            <div class="momo-desc">Mobile Money</div>
+          </div>
+        </div>
+
+        <!-- Numéro à débiter -->
+        <div class="momo-number-field" id="momo-number-field">
+          <div class="field-modal">
+            <label id="momo-number-label">Numéro MTN MoMo à débiter</label>
+            <input class="input-modal" id="momo-number-input"
+                   type="tel" placeholder="+242 06 XXX XX XX" />
+          </div>
+          <div style="padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid var(--border); font-size:0.72rem; color:var(--muted); margin-bottom:6px;">
+            📲 Vous recevrez une demande de confirmation par SMS
+          </div>
+        </div>
+      </div>
+
+      <button class="confirm-btn default-pay" id="confirm-btn" onclick="confirmerPaiement()" disabled>
+        <span class="btn-inner">Choisissez un mode de paiement</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <div class="success-ring">✅</div>
+    <div class="success-title">Commande confirmée !</div>
+    <div class="success-desc">
+      Votre commande a bien été reçue.<br/>
+      La vendeuse prépare votre plat et<br/>
+      vous contactera pour la livraison.
+    </div>
+    <div class="success-ref">
+      Référence : <strong id="success-ref">—</strong>
+    </div>
+    <button class="back-home-btn" onclick="retourAccueil()">
+      🏠 Retour à l'accueil
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let sessionUser  = null;
+let panier       = {};   // { dishId: { dish, qty } }
+let allPlats     = [];   // données brutes Supabase
+let filteredPlats= [];
+let activeQuartier = 'tous';
+let selectedPaiement = null;
+
+// ═══════════════════════════════════════════════════════
+// CATALOGUE DÉMO (si Supabase vide, on affiche des plats)
+// ═══════════════════════════════════════════════════════
+const DEMO_CATALOGUE = [
+  {
+    id: 'demo-1', vendor_name: 'Maman Rose', vendor_location: 'bacongo',
+    name: 'Saka-Saka au poisson fumé', emoji: '🥬',
+    description: 'Feuilles de manioc pilées, poisson fumé, piment doux, huile de palme',
+    price: 2500, current_stock: 8, quartier: 'bacongo',
+  },
+  {
+    id: 'demo-2', vendor_name: 'Tantine Cécile', vendor_location: 'poto-poto',
+    name: 'Poulet braisé + Plantain frit', emoji: '🍗',
+    description: 'Poulet mariné aux épices, grillé au charbon, accompagné de banane plantain',
+    price: 3500, current_stock: 5, quartier: 'poto-poto',
+  },
+  {
+    id: 'demo-3', vendor_name: 'Maman Rose', vendor_location: 'bacongo',
+    name: 'Moambe au poulet', emoji: '🍲',
+    description: 'Sauce moambe traditionnelle, poulet tendre, servi avec du riz blanc',
+    price: 3000, current_stock: 3, quartier: 'bacongo',
+  },
+  {
+    id: 'demo-4', vendor_name: 'Fabiola K.', vendor_location: 'talangai',
+    name: 'Fufu + Soupe de légumes', emoji: '🫙',
+    description: 'Fufu de manioc frais, soupe de légumes verts, viande de bœuf',
+    price: 2000, current_stock: 10, quartier: 'talangai',
+  },
+  {
+    id: 'demo-5', vendor_name: 'Tantine Cécile', vendor_location: 'poto-poto',
+    name: 'Beignets de haricots (Accara)', emoji: '🫘',
+    description: 'Beignets croustillants à base de haricots blancs, sauce piment maison',
+    price: 1000, current_stock: 2, quartier: 'poto-poto',
+  },
+  {
+    id: 'demo-6', vendor_name: 'Ange M.', vendor_location: 'moungali',
+    name: 'Maboke de tilapia', emoji: '🐟',
+    description: 'Tilapia entier mariné, cuit à la vapeur dans des feuilles de bananier',
+    price: 4000, current_stock: 0, quartier: 'moungali',
+  },
+  {
+    id: 'demo-7', vendor_name: 'Fabiola K.', vendor_location: 'talangai',
+    name: 'Riz au gras + Poisson', emoji: '🍚',
+    description: 'Riz cuit dans une sauce tomate épicée, filet de poisson grillé',
+    price: 2800, current_stock: 6, quartier: 'talangai',
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init() {
+  // ── Protection de route : clients uniquement ──────────────────────────
+  const raw = localStorage.getItem('maboke_session');
+
+  if (!raw) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try { sessionUser = JSON.parse(raw); } catch(e) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (!sessionUser || sessionUser.role !== 'client') {
+    // Vendeuse → son espace | session invalide → connexion
+    window.location.href = sessionUser?.role === 'vendeuse' ? 'vendeuse.html' : 'index.html';
+    return;
+  }
+
+  // ── Client confirmé ───────────────────────────────────────────────────
+  document.getElementById('nav-user').textContent = sessionUser.name || '';
+  document.getElementById('hero-greeting').textContent =
+    'Bonjour ' + (sessionUser.name?.split(' ')[0] || '') + ' 👋';
+
+  // Livraison info
+  const labels = { 'poto-poto':'Poto-Poto','bacongo':'Bacongo','talangai':'Talangaï','autre':'Autre quartier','moungali':'Moungali' };
+  const q = sessionUser?.quartier;
+  document.getElementById('livraison-info').textContent =
+    q ? `🏘️ ${labels[q] || q}` : '📍 Renseignez votre adresse';
+
+  // Pré-remplir numéro mobile money
+  if (sessionUser?.phone) {
+    document.getElementById('momo-number-input').value = sessionUser.phone;
+  }
+
+  // Charger le catalogue depuis Supabase, sinon démo
+  await loadCatalogue();
+}
+
+async function loadCatalogue() {
+  try {
+    const { data, error } = await sb
+      .from('dishes')
+      .select('*, vendors(name, location)')
+      .order('name', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      allPlats = data.map(d => ({
+        ...d,
+        vendor_name: d.vendors?.name || '—',
+        vendor_location: d.vendors?.location || '',
+        quartier: (d.vendors?.location || '').toLowerCase().replace(/[^a-z-]/g, ''),
+        emoji: getEmoji(d.name),
+      }));
+    } else {
+      // Fallback démo
+      allPlats = DEMO_CATALOGUE;
+    }
+  } catch(e) {
+    allPlats = DEMO_CATALOGUE;
+  }
+
+  filteredPlats = [...allPlats];
+  renderCatalogue();
+}
+
+function getEmoji(name) {
+  const n = name.toLowerCase();
+  if (n.includes('poulet')) return '🍗';
+  if (n.includes('poisson') || n.includes('tilapia')) return '🐟';
+  if (n.includes('saka') || n.includes('manioc')) return '🥬';
+  if (n.includes('moambe')) return '🍲';
+  if (n.includes('fufu') || n.includes('soupe')) return '🫙';
+  if (n.includes('riz')) return '🍚';
+  if (n.includes('beignet') || n.includes('haricot')) return '🫘';
+  if (n.includes('maboke')) return '🐟';
+  if (n.includes('plantain') || n.includes('banane')) return '🍌';
+  return '🍽️';
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDU CATALOGUE
+// ═══════════════════════════════════════════════════════
+function renderCatalogue() {
+  const container = document.getElementById('catalogue-container');
+  const label     = document.getElementById('catalogue-label');
+
+  if (!filteredPlats.length) {
+    container.innerHTML = `<div class="empty-catalogue"><div class="ei">🔍</div>Aucun plat trouvé.<br/>Essayez une autre recherche.</div>`;
+    return;
+  }
+
+  // Grouper par vendeur
+  const byVendeur = {};
+  filteredPlats.forEach(p => {
+    const key = p.vendor_name + '||' + p.vendor_location;
+    if (!byVendeur[key]) byVendeur[key] = { name: p.vendor_name, loc: p.vendor_location, plats: [] };
+    byVendeur[key].plats.push(p);
+  });
+
+  let html = '';
+  let delay = 0;
+  Object.values(byVendeur).forEach(vendeur => {
+    html += `
+      <div class="vendeur-strip">
+        <div class="vendeur-avatar">👩‍🍳</div>
+        <div>
+          <div class="vendeur-name">${vendeur.name}</div>
+          <div class="vendeur-loc">📍 ${vendeur.loc || '—'}</div>
+        </div>
+        <span class="vendeur-badge">✅ Disponible</span>
+      </div>
+      <div class="plats-grid">`;
+
+    vendeur.plats.forEach(p => {
+      const qty   = panier[p.id]?.qty || 0;
+      const stock = p.current_stock ?? 0;
+      const isOut = stock <= 0;
+      const badgeCls = isOut ? 'sb-out' : stock <= 2 ? 'sb-low' : 'sb-ok';
+      const badgeTxt = isOut ? 'Épuisé' : stock <= 2 ? `Plus que ${stock}` : 'Dispo';
+
+      html += `
+        <div class="plat-card ${isOut ? 'out-of-stock' : ''}" style="animation-delay:${delay}ms">
+          <div class="plat-emoji">${p.emoji || '🍽️'}</div>
+          <div class="plat-info">
+            <div class="plat-name">${p.name}</div>
+            <div class="plat-desc">${p.description || ''}</div>
+            <div class="plat-bottom">
+              <div>
+                <div class="plat-price">${p.price.toLocaleString('fr-FR')} FCFA</div>
+                <div class="plat-stock">${isOut ? 'Rupture de stock' : `${stock} portions restantes`}</div>
+              </div>
+            </div>
+          </div>
+          <div class="plat-right">
+            <span class="stock-badge ${badgeCls}">${badgeTxt}</span>
+            ${!isOut ? `
+            <div class="qty-ctrl">
+              <button class="qty-btn minus" onclick="updateQty('${p.id}', -1)" ${qty===0?'style="opacity:0.3"':''}>−</button>
+              <span class="qty-val" id="qty-${p.id}">${qty}</span>
+              <button class="qty-btn plus" onclick="updateQty('${p.id}', 1)">+</button>
+            </div>` : ''}
+          </div>
+        </div>`;
+      delay += 40;
+    });
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  label.textContent = `🍽️ ${filteredPlats.length} plat${filteredPlats.length > 1 ? 's' : ''} disponible${filteredPlats.length > 1 ? 's' : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// PANIER
+// ═══════════════════════════════════════════════════════
+function updateQty(dishId, delta) {
+  const plat = allPlats.find(p => p.id === dishId);
+  if (!plat) return;
+
+  const current = panier[dishId]?.qty || 0;
+  const newQty  = Math.max(0, Math.min(current + delta, plat.current_stock));
+
+  if (newQty === 0) {
+    delete panier[dishId];
+  } else {
+    panier[dishId] = { dish: plat, qty: newQty };
+  }
+
+  // Mettre à jour l'affichage qty
+  const qtyEl = document.getElementById('qty-' + dishId);
+  if (qtyEl) qtyEl.textContent = newQty;
+
+  // Bouton minus
+  const card = qtyEl?.closest('.plat-card');
+  if (card) {
+    const minusBtn = card.querySelector('.qty-btn.minus');
+    if (minusBtn) minusBtn.style.opacity = newQty === 0 ? '0.3' : '1';
+  }
+
+  refreshPanier();
+}
+
+function refreshPanier() {
+  const items  = Object.values(panier);
+  const total  = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  const count  = items.reduce((s, i) => s + i.qty, 0);
+
+  document.getElementById('panier-total').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('panier-count').textContent = count + ' article' + (count > 1 ? 's' : '');
+
+  const bar = document.getElementById('panier-bar');
+  if (count > 0) bar.classList.remove('hidden');
+  else           bar.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════
+// RECHERCHE & FILTRES
+// ═══════════════════════════════════════════════════════
+function filterPlats() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  filteredPlats = allPlats.filter(p => {
+    const matchQ = activeQuartier === 'tous' || p.quartier === activeQuartier;
+    const matchS = !q || p.name.toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q);
+    return matchQ && matchS;
+  });
+  renderCatalogue();
+}
+
+function setQuartier(btn) {
+  document.querySelectorAll('.q-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeQuartier = btn.dataset.q;
+  filterPlats();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL PAIEMENT
+// ═══════════════════════════════════════════════════════
+function openModal() {
+  const items = Object.values(panier);
+  if (!items.length) return;
+
+  // Récap
+  const total = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  document.getElementById('recap-list').innerHTML = items.map(i => `
+    <div class="recap-row">
+      <span class="rname">${i.dish.emoji || '🍽️'} ${i.dish.name} × ${i.qty}</span>
+      <span class="rprice">${(i.dish.price * i.qty).toLocaleString('fr-FR')} FCFA</span>
+    </div>`).join('');
+  document.getElementById('recap-total-amount').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+
+  // Reset paiement
+  selectedPaiement = null;
+  document.querySelectorAll('.momo-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('momo-number-field').classList.remove('show');
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.className = 'confirm-btn default-pay';
+  btn.querySelector('.btn-inner').textContent = 'Choisissez un mode de paiement';
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function selectPaiement(type) {
+  selectedPaiement = type;
+  document.querySelectorAll('.momo-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelector('.momo-opt.' + type).classList.add('selected');
+
+  // Afficher champ numéro
+  document.getElementById('momo-number-field').classList.add('show');
+  document.getElementById('momo-number-label').textContent =
+    type === 'mtn' ? 'Numéro MTN MoMo à débiter' : 'Numéro Airtel Money à débiter';
+
+  // Bouton
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = false;
+  if (type === 'mtn') {
+    btn.className = 'confirm-btn mtn-pay';
+    btn.querySelector('.btn-inner').textContent = '⭐ Payer avec MTN MoMo →';
+  } else {
+    btn.className = 'confirm-btn airtel-pay';
+    btn.querySelector('.btn-inner').textContent = '🔴 Payer avec Airtel Money →';
+  }
+}
+
+// Fermer modal en cliquant dehors
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════
+// CONFIRMER PAIEMENT
+// ═══════════════════════════════════════════════════════
+async function confirmerPaiement() {
+  const numero = document.getElementById('momo-number-input').value.trim();
+  if (!numero) {
+    showToast('⚠️ Entrez votre numéro Mobile Money');
+    return;
+  }
+
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.querySelector('.btn-inner').textContent = '⏳ Traitement en cours…';
+
+  const items = Object.values(panier);
+  const total = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  const ref   = 'MBK-' + Date.now().toString(36).toUpperCase();
+
+  // ── En production : insérer dans Supabase + appeler API paiement ──
+  // const { error } = await sb.from('commandes').insert([{
+  //   client_id:   sessionUser?.id,
+  //   montant:     total,
+  //   operateur:   selectedPaiement,
+  //   numero_momo: numero,
+  //   reference:   ref,
+  //   items:       JSON.stringify(items.map(i => ({ id:i.dish.id, qty:i.qty, prix:i.dish.price }))),
+  //   statut:      'en_attente',
+  // }]);
+
+  // Simulation paiement
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Sauvegarder localement
+  const historique = JSON.parse(localStorage.getItem('maboke_commandes') || '[]');
+  historique.push({
+    ref, date: new Date().toISOString(),
+    items: items.map(i => ({ nom: i.dish.name, qty: i.qty, prix: i.dish.price })),
+    total, operateur: selectedPaiement, numero, statut: 'confirmée',
+  });
+  localStorage.setItem('maboke_commandes', JSON.stringify(historique));
+
+  // Fermer modal, afficher succès
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.getElementById('success-ref').textContent = ref;
+  document.getElementById('success-overlay').classList.add('show');
+
+  btn.disabled = false;
+  btn.querySelector('.btn-inner').textContent = selectedPaiement === 'mtn'
+    ? '⭐ Payer avec MTN MoMo →'
+    : '🔴 Payer avec Airtel Money →';
+}
+
+function retourAccueil() {
+  // Vider le panier
+  panier = {};
+  refreshPanier();
+  document.getElementById('success-overlay').classList.remove('show');
+  window.location.href = 'index.html';
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// START
+init();
+</script>
+</body>
+</html>
