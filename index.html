@@ -801,99 +801,7 @@
 
     <main class="content">
       <p class="section-title">Plats africains à la carte</p>
-      <div class="dishes" id="dishes">
-        <article class="dish-card" data-category="poulet" data-name="Maboke de poulet braisé" data-price="6500">
-          <div class="dish-image">
-            <div class="dish-image-label">
-              <span>🍗</span>
-              <span>Poulet braisé</span>
-            </div>
-          </div>
-          <div class="dish-info">
-            <div>
-              <h2 class="dish-name">Maboke de poulet braisé</h2>
-              <p class="dish-desc">
-                Poulet mariné aux épices du pays, cuit en papillote de feuilles de bananier.
-              </p>
-            </div>
-            <div class="dish-meta">
-              <p class="price">6 500 FCFA <span>/ portion</span></p>
-              <button class="btn-add" type="button" data-id="poulet1">
-                + Ajouter
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <article class="dish-card" data-category="poisson" data-name="Maboke de poisson" data-price="7000">
-          <div class="dish-image">
-            <div class="dish-image-label">
-              <span>🐟</span>
-              <span>Poisson fumant</span>
-            </div>
-          </div>
-          <div class="dish-info">
-            <div>
-              <h2 class="dish-name">Maboke de poisson</h2>
-              <p class="dish-desc">
-                Filet de poisson frais, sauce tomate oignons et piment doux, vapeur en feuille.
-              </p>
-            </div>
-            <div class="dish-meta">
-              <p class="price">7 000 FCFA <span>/ portion</span></p>
-              <button class="btn-add" type="button" data-id="poisson1">
-                + Ajouter
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <article class="dish-card" data-category="viande" data-name="Ragoût de chèvre" data-price="6800">
-          <div class="dish-image">
-            <div class="dish-image-label">
-              <span>🥘</span>
-              <span>Viande mijotée</span>
-            </div>
-          </div>
-          <div class="dish-info">
-            <div>
-              <h2 class="dish-name">Ragoût de chèvre</h2>
-              <p class="dish-desc">
-                Morceaux de chèvre mijotés longuement avec légumes, herbes fraîches et piment.
-              </p>
-            </div>
-            <div class="dish-meta">
-              <p class="price">6 800 FCFA <span>/ bol</span></p>
-              <button class="btn-add" type="button" data-id="viande1">
-                + Ajouter
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <article class="dish-card" data-category="accompagnement" data-name="Foufou manioc & banane" data-price="1500">
-          <div class="dish-image">
-            <div class="dish-image-label">
-              <span>🍚</span>
-              <span>Foufou & manioc</span>
-            </div>
-          </div>
-          <div class="dish-info">
-            <div>
-              <h2 class="dish-name">Foufou manioc &amp; banane</h2>
-              <p class="dish-desc">
-                Mélange de foufou manioc et banane plantain, idéal pour accompagner vos maboke.
-              </p>
-            </div>
-            <div class="dish-meta">
-              <p class="price">1 500 FCFA <span>/ part</span></p>
-              <button class="btn-add" type="button" data-id="accomp1">
-                + Ajouter
-              </button>
-            </div>
-          </div>
-        </article>
-      </div>
+      <div class="dishes" id="dishes"></div>
     </main>
 
     <div class="bottom-bar">
@@ -967,6 +875,9 @@
     </div>
   </div>
 
+  <!-- Supabase JS pour récupérer les plats depuis la base -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     (function () {
       const dishesEl = document.getElementById('dishes');
@@ -985,8 +896,14 @@
       const paymentMethodButtons = document.querySelectorAll('[data-payment-method]');
       const paymentTxIdInput = document.getElementById('payment-txid');
 
+      // Connexion Supabase (même projet que vendeuse.html)
+      const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
       const cart = new Map(); // key: id, value: { id, name, price, qty }
       let selectedPaymentMethod = 'mtn';
+      let loadedDishes = []; // plats chargés depuis Supabase
 
       function formatPrice(value) {
         return value.toLocaleString('fr-FR') + ' FCFA';
@@ -998,6 +915,116 @@
           total += item.price * item.qty;
         });
         return total;
+      }
+
+      function getCategoryFromName(name) {
+        const lower = (name || '').toLowerCase();
+        if (lower.includes('poulet')) return 'poulet';
+        if (lower.includes('poisson')) return 'poisson';
+        if (
+          lower.includes('chèvre') ||
+          lower.includes('chevre') ||
+          lower.includes('viande') ||
+          lower.includes('boeuf') ||
+          lower.includes('bœuf')
+        ) {
+          return 'viande';
+        }
+        if (
+          lower.includes('foufou') ||
+          lower.includes('manioc') ||
+          lower.includes('banane') ||
+          lower.includes('riz') ||
+          lower.includes('accompagnement')
+        ) {
+          return 'accompagnement';
+        }
+        return 'tous';
+      }
+
+      function getEmojiForCategory(category) {
+        if (category === 'poulet') return '🍗';
+        if (category === 'poisson') return '🐟';
+        if (category === 'viande') return '🥘';
+        if (category === 'accompagnement') return '🍚';
+        return '🍲';
+      }
+
+      async function loadDishesFromSupabase() {
+        try {
+          dishesEl.innerHTML = '<p class="dish-desc">Chargement des plats disponibles…</p>';
+
+          const { data, error } = await supabaseClient
+            .from('dishes')
+            .select('id, name, description, price, current_stock, initial_stock, status')
+            .order('name', { ascending: true });
+
+          if (error) {
+            console.error(error);
+            dishesEl.innerHTML = '<p class="dish-desc">Impossible de charger les plats. Veuillez réessayer plus tard.</p>';
+            return;
+          }
+
+          // Filtrer uniquement les plats disponibles (stock > 0, pas en rupture)
+          loadedDishes = (data || []).filter((dish) => {
+            const stock = dish.current_stock ?? 0;
+            const status = dish.status || 'disponible';
+            return stock > 0 && status !== 'rupture';
+          });
+
+          if (!loadedDishes.length) {
+            dishesEl.innerHTML = '<p class="dish-desc">Aucun plat disponible pour le moment. Revenez un peu plus tard.</p>';
+            return;
+          }
+
+          dishesEl.innerHTML = '';
+
+          loadedDishes.forEach((dish) => {
+            const category = getCategoryFromName(dish.name);
+            const emoji = getEmojiForCategory(category);
+            const stock = dish.current_stock ?? 0;
+            const stockLabel = stock <= 2 ? `Plus que ${stock} portion(s)` : `${stock} portions dispo`;
+
+            const article = document.createElement('article');
+            article.className = 'dish-card';
+            article.dataset.category = category;
+            article.dataset.name = dish.name || 'Plat';
+            article.dataset.price = String(dish.price || 0);
+
+            article.innerHTML = `
+              <div class="dish-image">
+                <div class="dish-image-label">
+                  <span>${emoji}</span>
+                  <span>${dish.name || 'Plat Maboke'}</span>
+                </div>
+              </div>
+              <div class="dish-info">
+                <div>
+                  <h2 class="dish-name">${dish.name || 'Plat Maboke'}</h2>
+                  <p class="dish-desc">
+                    ${dish.description ? dish.description : 'Plat maison préparé avec des ingrédients frais.'}
+                  </p>
+                </div>
+                <div class="dish-meta">
+                  <p class="price">
+                    ${formatPrice(dish.price || 0)}
+                    <span>${stockLabel}</span>
+                  </p>
+                  <button class="btn-add" type="button" data-id="${dish.id}">
+                    + Ajouter
+                  </button>
+                </div>
+              </div>
+            `;
+
+            dishesEl.appendChild(article);
+          });
+
+          applyFilters();
+        } catch (err) {
+          console.error(err);
+          dishesEl.innerHTML = '<p class="dish-desc">Erreur inattendue lors du chargement des plats.</p>';
+        }
       }
 
       function updateCartDisplay() {
@@ -1180,6 +1207,9 @@
       });
 
       searchInput.addEventListener('input', applyFilters);
+
+      // Chargement initial des plats depuis Supabase
+      loadDishesFromSupabase();
     })();
   </script>
 </body>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Espace vendeuse - Maboke</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #059669;
+      --secondary: #f97316;
+      --bg: #020617;
+      --card: #0b1220;
+      --border: rgba(148, 163, 184, 0.5);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.25), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: radial-gradient(circle at top, rgba(15, 118, 110, 0.22), #020617);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+      padding: 16px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(34, 197, 94, 0.6);
+      font-size: 0.7rem;
+      color: #bbf7d0;
+      background: rgba(15, 118, 110, 0.25);
+    }
+
+    .section-card {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      padding: 12px 12px 10px;
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .section-description {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      flex: 1;
+      margin-bottom: 6px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      padding: 7px 9px;
+      font-size: 0.8rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--secondary), #fed7aa);
+      color: #1c1917;
+      box-shadow: 0 16px 30px rgba(249, 115, 22, 0.45);
+      margin-top: 4px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding-inline: 10px;
+    }
+
+    .status-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+      min-height: 1em;
+    }
+
+    .status-text.ok {
+      color: #22c55e;
+    }
+
+    .status-text.error {
+      color: #f97316;
+    }
+
+    .dish-list {
+      margin-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+    }
+
+    .dish-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .dish-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.7);
+      border-radius: 999px;
+    }
+
+    .dish-item {
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 7px 8px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .dish-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dish-name {
+      font-weight: 600;
+    }
+
+    .dish-badge {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.7rem;
+    }
+
+    .badge-ok {
+      background: rgba(22, 163, 74, 0.16);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.6);
+    }
+
+    .badge-low {
+      background: rgba(234, 179, 8, 0.18);
+      color: #fef9c3;
+      border: 1px solid rgba(250, 204, 21, 0.7);
+    }
+
+    .badge-out {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.8);
+    }
+
+    .dish-desc {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .dish-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      color: var(--muted);
+    }
+
+    .dish-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .small-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      cursor: pointer;
+    }
+
+    .small-btn.main {
+      border-color: rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+    }
+
+    .small-btn.danger {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div>
+        <div class="title">Espace vendeuse</div>
+        <p class="subtitle">Ajoutez vos plats et gérez votre stock.</p>
+      </div>
+      <span class="badge">Maboke Manager</span>
+    </header>
+
+    <section class="section-card">
+      <h2 class="section-title">Informations vendeuse</h2>
+      <p class="section-description">
+        Saisissez votre nom et votre localisation. Ces informations seront liées à vos plats.
+      </p>
+      <div class="field-row">
+        <div class="field">
+          <label for="vendor-name">Nom de la vendeuse</label>
+          <input id="vendor-name" class="input" type="text" placeholder="Ex : Maman Rose" />
+        </div>
+        <div class="field">
+          <label for="vendor-location">Localisation</label>
+          <input id="vendor-location" class="input" type="text" placeholder="Ex : Bacongo, Rond-point" />
+        </div>
+      </div>
+      <button id="vendor-save" class="btn btn-outline" type="button">
+        Utiliser ce profil
+      </button>
+      <div id="vendor-status" class="status-text"></div>
+    </section>
+
+    <section class="section-card">
+      <h2 class="section-title">Ajouter / mettre à jour un plat</h2>
+      <p class="section-description">
+        Ajoutez un plat avec son prix et le nombre de portions préparées pour aujourd'hui.
+      </p>
+      <div class="field">
+        <label for="dish-name">Nom du plat</label>
+        <input id="dish-name" class="input" type="text" placeholder="Ex : Maboke de poisson" />
+      </div>
+      <div class="field">
+        <label for="dish-description">Description du plat</label>
+        <input
+          id="dish-description"
+          class="input"
+          type="text"
+          placeholder="Ex : Poisson frais, légumes, sauce tomate, piment doux…"
+        />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dish-price">Prix (FCFA)</label>
+          <input id="dish-price" class="input" type="number" min="0" step="100" placeholder="7000" />
+        </div>
+        <div class="field">
+          <label for="dish-stock">Stock initial (portions)</label>
+          <input id="dish-stock" class="input" type="number" min="0" step="1" placeholder="10" />
+        </div>
+      </div>
+      <button id="dish-save" class="btn btn-primary" type="button">
+        Enregistrer le plat
+      </button>
+      <div id="dish-status" class="status-text"></div>
+    </section>
+
+    <section class="section-card">
+      <h2 class="section-title">Vos plats du jour</h2>
+      <p class="section-description">
+        Mettez à jour le stock en temps réel : chaque vente décrémente automatiquement.
+      </p>
+      <div id="dish-list" class="dish-list"></div>
+    </section>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // TODO: remplacez la clé ANON par celle de votre projet Supabase
+    const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const vendorNameInput = document.getElementById('vendor-name');
+    const vendorLocationInput = document.getElementById('vendor-location');
+    const vendorSaveBtn = document.getElementById('vendor-save');
+    const vendorStatus = document.getElementById('vendor-status');
+
+    const dishNameInput = document.getElementById('dish-name');
+    const dishDescriptionInput = document.getElementById('dish-description');
+    const dishPriceInput = document.getElementById('dish-price');
+    const dishStockInput = document.getElementById('dish-stock');
+    const dishSaveBtn = document.getElementById('dish-save');
+    const dishStatus = document.getElementById('dish-status');
+    const dishList = document.getElementById('dish-list');
+
+    let currentVendor = null; // { id, name, location }
+
+    function setStatus(el, msg, type) {
+      el.textContent = msg || '';
+      el.classList.remove('ok', 'error');
+      if (type) {
+        el.classList.add(type);
+      }
+    }
+
+    function computeStatusBadge(dish) {
+      const stock = dish.current_stock ?? 0;
+      if (stock <= 0 || dish.status === 'rupture') {
+        return { label: 'Rupture de stock', className: 'badge-out' };
+      }
+      if (stock <= 2 || dish.status === 'bientot_en_rupture') {
+        return { label: 'Bientôt en rupture', className: 'badge-low' };
+      }
+      return { label: 'Disponible', className: 'badge-ok' };
+    }
+
+    async function ensureVendorProfile() {
+      const name = vendorNameInput.value.trim();
+      const location = vendorLocationInput.value.trim();
+      if (!name || !location) {
+        setStatus(vendorStatus, 'Veuillez saisir votre nom et votre localisation.', 'error');
+        return null;
+      }
+      try {
+        setStatus(vendorStatus, 'Enregistrement du profil…');
+
+        const { data, error } = await supabaseClient
+          .from('vendors')
+          .upsert(
+            { name, location },
+            { onConflict: 'name,location' }
+          )
+          .select()
+          .limit(1);
+
+        if (error) throw error;
+        const vendor = data[0];
+        currentVendor = vendor;
+        setStatus(vendorStatus, `Profil chargé : ${vendor.name} (${vendor.location})`, 'ok');
+        await loadDishes();
+        return vendor;
+      } catch (err) {
+        console.error(err);
+        setStatus(vendorStatus, "Impossible d'enregistrer le profil vendeuse.", 'error');
+        return null;
+      }
+    }
+
+    async function loadDishes() {
+      if (!currentVendor) {
+        dishList.innerHTML = '<p class="status-text">Choisissez d’abord un profil vendeuse.</p>';
+        return;
+      }
+      try {
+        dishList.innerHTML = '<p class="status-text">Chargement des plats…</p>';
+        const { data, error } = await supabaseClient
+          .from('dishes')
+          .select('*')
+          .eq('vendor_id', currentVendor.id)
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+
+        if (!data.length) {
+          dishList.innerHTML = '<p class="status-text">Aucun plat enregistré pour le moment.</p>';
+          return;
+        }
+
+        dishList.innerHTML = '';
+        data.forEach((dish) => {
+          const badge = computeStatusBadge(dish);
+          const el = document.createElement('div');
+          el.className = 'dish-item';
+          el.innerHTML = `
+            <div class="dish-header">
+              <span class="dish-name">${dish.name}</span>
+              <span class="dish-badge ${badge.className}">${badge.label}</span>
+            </div>
+            ${dish.description ? `<div class="dish-desc">${dish.description}</div>` : ''}
+            <div class="dish-meta">
+              <span>Prix : ${dish.price.toLocaleString('fr-FR')} FCFA</span>
+              <span>Stock : ${dish.current_stock ?? 0} / ${dish.initial_stock ?? 0}</span>
+            </div>
+            <div class="dish-actions">
+              <button class="small-btn main" data-action="sell" data-id="${dish.id}">-1 vendu</button>
+              <button class="small-btn" data-action="add" data-id="${dish.id}">+1 stock</button>
+              <button class="small-btn danger" data-action="out" data-id="${dish.id}">Rupture</button>
+            </div>
+          `;
+          dishList.appendChild(el);
+        });
+      } catch (err) {
+        console.error(err);
+        dishList.innerHTML = '<p class="status-text error">Erreur lors du chargement des plats.</p>';
+      }
+    }
+
+    async function adjustDishStock(dishId, action) {
+      try {
+        const { data: existingRows, error: fetchError } = await supabaseClient
+          .from('dishes')
+          .select('*')
+          .eq('id', dishId)
+          .limit(1);
+        if (fetchError) throw fetchError;
+        const dish = existingRows[0];
+        if (!dish) return;
+
+        let newStock = dish.current_stock ?? 0;
+        let newStatus = dish.status || 'disponible';
+
+        if (action === 'sell') {
+          newStock = Math.max(0, newStock - 1);
+        } else if (action === 'add') {
+          newStock += 1;
+        } else if (action === 'out') {
+          newStock = 0;
+          newStatus = 'rupture';
+        }
+
+        if (newStock <= 0) {
+          newStatus = 'rupture';
+        } else if (newStock <= 2 && newStatus !== 'rupture') {
+          newStatus = 'bientot_en_rupture';
+        } else if (newStock > 2 && newStatus !== 'rupture') {
+          newStatus = 'disponible';
+        }
+
+        const { error: updateError } = await supabaseClient
+          .from('dishes')
+          .update({ current_stock: newStock, status: newStatus })
+          .eq('id', dishId);
+        if (updateError) throw updateError;
+
+        await loadDishes();
+      } catch (err) {
+        console.error(err);
+        setStatus(dishStatus, 'Erreur lors de la mise à jour du stock.', 'error');
+      }
+    }
+
+    vendorSaveBtn.addEventListener('click', ensureVendorProfile);
+
+    dishSaveBtn.addEventListener('click', async () => {
+      if (!currentVendor) {
+        const profile = await ensureVendorProfile();
+        if (!profile) return;
+      }
+      const name = dishNameInput.value.trim();
+      const price = Number(dishPriceInput.value || 0);
+      const description = dishDescriptionInput.value.trim();
+      const stock = Number(dishStockInput.value || 0);
+
+      if (!name || !price || price <= 0) {
+        setStatus(dishStatus, 'Nom du plat et prix sont obligatoires.', 'error');
+        return;
+      }
+
+      try {
+        setStatus(dishStatus, 'Enregistrement du plat…');
+
+        const initialStock = stock >= 0 ? stock : 0;
+        const currentStock = initialStock;
+        const status = currentStock <= 0 ? 'rupture' : 'disponible';
+
+        const { error } = await supabaseClient
+          .from('dishes')
+          .upsert(
+            {
+              vendor_id: currentVendor.id,
+              name,
+              price,
+              description: description || null,
+              initial_stock: initialStock,
+              current_stock: currentStock,
+              status
+            },
+            { onConflict: 'vendor_id,name' }
+          );
+
+        if (error) throw error;
+
+        setStatus(dishStatus, 'Plat enregistré avec succès.', 'ok');
+        dishNameInput.value = '';
+        dishDescriptionInput.value = '';
+        dishPriceInput.value = '';
+        dishStockInput.value = '';
+        await loadDishes();
+      } catch (err) {
+        console.error(err);
+        setStatus(dishStatus, "Impossible d'enregistrer le plat.", 'error');
+      }
+    });
+
+    dishList.addEventListener('click', (event) => {
+      const btn = event.target.closest('button[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      if (!id || !action) return;
+      adjustDishStock(id, action);
+    });
+  </script>
+</body>
+</html>
+
