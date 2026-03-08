@@ -675,6 +675,38 @@
       font-weight: 600;
     }
 
+    .payment-field {
+      margin-bottom: 8px;
+    }
+
+    .payment-field label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .payment-input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      padding: 7px 9px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .payment-input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .payment-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
     .payment-confirm-btn {
       width: 100%;
       border-radius: 999px;
@@ -916,6 +948,18 @@
         <p class="payment-merchant">
           Numéro marchand : <span>+242 06 614 29 33</span>
         </p>
+        <div class="payment-field">
+          <label for="payment-txid">ID de Transaction SMS</label>
+          <input
+            id="payment-txid"
+            class="payment-input"
+            type="text"
+            placeholder="Collez ici l'ID reçu par SMS"
+          />
+        </div>
+        <p class="payment-note">
+          La commande ne sera lancée qu'après réception effective de votre dépôt.
+        </p>
         <button class="payment-confirm-btn" type="button" id="payment-confirm">
           J'ai envoyé le paiement
         </button>
@@ -939,6 +983,7 @@
       const paymentConfirmBtn = document.getElementById('payment-confirm');
       const paymentCloseBtn = document.getElementById('payment-close');
       const paymentMethodButtons = document.querySelectorAll('[data-payment-method]');
+      const paymentTxIdInput = document.getElementById('payment-txid');
 
       const cart = new Map(); // key: id, value: { id, name, price, qty }
       let selectedPaymentMethod = 'mtn';
@@ -1053,6 +1098,10 @@
           btn.classList.toggle('active', btn.dataset.paymentMethod === selectedPaymentMethod);
         });
 
+        if (paymentTxIdInput) {
+          paymentTxIdInput.value = '';
+        }
+
         paymentModal.classList.add('open');
       }
 
@@ -1081,29 +1130,19 @@
           return;
         }
 
-        const phone = '24266142933'; // numéro sans le "+"
+        const txId = (paymentTxIdInput?.value || '').trim();
+        if (!txId) {
+          alert("Merci de renseigner l'ID de Transaction SMS avant de confirmer.");
+          return;
+        }
 
-        let ligneCommande = '';
-        cart.forEach((item) => {
-          ligneCommande += `\n- ${item.name} x${item.qty}`;
-        });
+        const phone = '24266142933'; // numéro sans le "+"
 
         const total = getCartTotal();
         const totalAvecCommission = Math.round(total * 1.25);
-        const moyenText = selectedPaymentMethod === 'airtel' ? 'Airtel Money' : 'MTN MoMo';
+        const montantTexte = `${totalAvecCommission.toLocaleString('fr-FR')} FCFA`;
 
-        const message = [
-          "Bonjour Maboke, j'ai envoyé le paiement pour ma commande.",
-          '',
-          `Moyen de paiement : ${moyenText}`,
-          'Numéro marchand : +242066142933',
-          '',
-          'Détail de ma commande :',
-          ligneCommande.trim(),
-          '',
-          `Montant du panier : ${total.toLocaleString('fr-FR')} FCFA`,
-          `Montant avec commission (25%) : ${totalAvecCommission.toLocaleString('fr-FR')} FCFA`
-        ].join('\n');
+        const message = `Commande #123 - ID Paiement : ${txId} - Montant : ${montantTexte}`;
 
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
