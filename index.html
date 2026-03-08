@@ -857,6 +857,21 @@
           Numéro marchand : <span>+242 06 614 29 33</span>
         </p>
         <div class="payment-field">
+          <label>Total à payer (détail)</label>
+          <p class="payment-note" id="payment-summary-subtotal">
+            Plats : 0 FCFA
+          </p>
+          <p class="payment-note" id="payment-summary-app-tax">
+            Taxe application (25 %) : 0 FCFA
+          </p>
+          <p class="payment-note" id="payment-summary-momo">
+            Frais MoMo estimés : 0 FCFA
+          </p>
+          <p class="payment-note" id="payment-summary-total">
+            Total à payer : 0 FCFA
+          </p>
+        </div>
+        <div class="payment-field">
           <label for="payment-txid">ID de Transaction SMS</label>
           <input
             id="payment-txid"
@@ -895,6 +910,10 @@
       const paymentCloseBtn = document.getElementById('payment-close');
       const paymentMethodButtons = document.querySelectorAll('[data-payment-method]');
       const paymentTxIdInput = document.getElementById('payment-txid');
+      const paymentSummarySubtotal = document.getElementById('payment-summary-subtotal');
+      const paymentSummaryAppTax = document.getElementById('payment-summary-app-tax');
+      const paymentSummaryMomo = document.getElementById('payment-summary-momo');
+      const paymentSummaryTotal = document.getElementById('payment-summary-total');
 
       // Connexion Supabase (même projet que vendeuse.html)
       const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
@@ -1027,6 +1046,36 @@
         }
       }
 
+      function computePaymentBreakdown() {
+        const totalPlats = getCartTotal();
+        const taxeApp = Math.round(totalPlats * 0.25);
+        const momoRate = 350 / 10000; // 350 FCFA pour 10 000 FCFA
+        const fraisMomo = selectedPaymentMethod === 'mtn'
+          ? Math.round(totalPlats * momoRate)
+          : 0;
+        const totalFinal = totalPlats + taxeApp + fraisMomo;
+        return { totalPlats, taxeApp, fraisMomo, totalFinal };
+      }
+
+      function updatePaymentSummary() {
+        const { totalPlats, taxeApp, fraisMomo, totalFinal } = computePaymentBreakdown();
+        if (paymentSummarySubtotal) {
+          paymentSummarySubtotal.textContent = `Plats : ${formatPrice(totalPlats)}`;
+        }
+        if (paymentSummaryAppTax) {
+          paymentSummaryAppTax.textContent = `Taxe application (25 %) : ${formatPrice(taxeApp)}`;
+        }
+        if (paymentSummaryMomo) {
+          const label = selectedPaymentMethod === 'mtn'
+            ? 'Frais MoMo estimés'
+            : 'Frais MoMo estimés (0 FCFA pour ce moyen de paiement)';
+          paymentSummaryMomo.textContent = `${label} : ${formatPrice(fraisMomo)}`;
+        }
+        if (paymentSummaryTotal) {
+          paymentSummaryTotal.textContent = `Total à payer : ${formatPrice(totalFinal)}`;
+        }
+      }
+
       function updateCartDisplay() {
         let totalQty = 0;
         let totalPrice = 0;
@@ -1130,6 +1179,7 @@
         }
 
         paymentModal.classList.add('open');
+        updatePaymentSummary();
       }
 
       function closePaymentModal() {
@@ -1142,6 +1192,7 @@
         btn.addEventListener('click', () => {
           selectedPaymentMethod = btn.dataset.paymentMethod;
           paymentMethodButtons.forEach(b => b.classList.toggle('active', b === btn));
+          updatePaymentSummary();
         });
       });
 
@@ -1164,12 +1215,21 @@
         }
 
         const phone = '24266142933'; // numéro sans le "+"
+        const { totalPlats, taxeApp, fraisMomo, totalFinal } = computePaymentBreakdown();
+        const moyenText = selectedPaymentMethod === 'airtel' ? 'Airtel Money' : 'MTN MoMo';
 
-        const total = getCartTotal();
-        const totalAvecCommission = Math.round(total * 1.25);
-        const montantTexte = `${totalAvecCommission.toLocaleString('fr-FR')} FCFA`;
+        const messageLines = [
+          `Commande #123 - ID Paiement : ${txId}`,
+          `Moyen de paiement : ${moyenText}`,
+          '',
+          `Total plats : ${totalPlats.toLocaleString('fr-FR')} FCFA`,
+          `Taxe application (25 %) : ${taxeApp.toLocaleString('fr-FR')} FCFA`,
+          `Frais MoMo : ${fraisMomo.toLocaleString('fr-FR')} FCFA`,
+          '',
+          `Montant total à payer : ${totalFinal.toLocaleString('fr-FR')} FCFA`
+        ];
 
-        const message = `Commande #123 - ID Paiement : ${txId} - Montant : ${montantTexte}`;
+        const message = messageLines.join('\n');
 
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
