@@ -29,7 +29,6 @@
       overflow-x: hidden;
     }
 
-    /* ─── ANIMATED BG ─────────────────────────────── */
     .bg-canvas {
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
       overflow: hidden;
@@ -47,7 +46,6 @@
       to   { transform: translate(30px, 20px) scale(1.08); }
     }
 
-    /* ─── WRAPPER ─────────────────────────────────── */
     #app {
       position: relative; z-index: 1;
       min-height: 100vh;
@@ -55,7 +53,6 @@
       padding: 24px 16px;
     }
 
-    /* ─── SCREENS ─────────────────────────────────── */
     .screen {
       display: none;
       width: 100%; max-width: 420px;
@@ -68,10 +65,7 @@
     }
 
     /* ─── LOGO ────────────────────────────────────── */
-    .logo-block {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    .logo-block { text-align: center; margin-bottom: 32px; }
     .logo-emblem {
       display: inline-flex; align-items: center; justify-content: center;
       width: 72px; height: 72px; border-radius: 24px;
@@ -92,12 +86,9 @@
       -webkit-background-clip: text; background-clip: text; color: transparent;
       letter-spacing: -0.03em; line-height: 1;
     }
-    .logo-tagline {
-      font-style: italic; color: var(--muted);
-      font-size: 0.85rem; margin-top: 4px;
-    }
+    .logo-tagline { font-style: italic; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
 
-    /* ─── LANDING HERO ────────────────────────────── */
+    /* ─── LANDING ─────────────────────────────────── */
     .hero-label {
       display: inline-block;
       background: rgba(22,163,74,0.15);
@@ -119,16 +110,10 @@
       background: linear-gradient(90deg, #22c55e, #f97316);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .hero-desc {
-      color: var(--muted); font-size: 0.88rem; line-height: 1.6;
-      margin-bottom: 28px;
-    }
+    .hero-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 28px; }
 
     /* ─── ROLE CARDS ──────────────────────────────── */
-    .role-cards {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px; margin-bottom: 20px;
-    }
+    .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .role-card {
       border-radius: 20px; padding: 20px 16px;
       border: 1px solid var(--border);
@@ -147,16 +132,8 @@
     .role-card:hover::before { opacity: 1; }
     .role-card.vendeuse:hover { border-color: rgba(234,88,12,0.6); box-shadow: 0 12px 40px rgba(234,88,12,0.2); }
     .role-card.client:hover   { border-color: rgba(22,163,74,0.6);  box-shadow: 0 12px 40px rgba(22,163,74,0.2); }
-    .role-icon {
-      font-size: 2.4rem; margin-bottom: 10px;
-      display: block;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-    }
-    .role-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1rem; font-weight: 700;
-      margin-bottom: 4px;
-    }
+    .role-icon { font-size: 2.4rem; margin-bottom: 10px; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
+    .role-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
     .role-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
     .role-badge {
       display: inline-block; margin-top: 8px;
@@ -177,13 +154,8 @@
     .divider-text::before { left: 0; }
     .divider-text::after  { right: 0; }
 
-    .signin-link {
-      text-align: center; font-size: 0.8rem; color: var(--muted);
-    }
-    .signin-link a {
-      color: #4ade80; font-weight: 600; cursor: pointer;
-      text-decoration: none;
-    }
+    .signin-link { text-align: center; font-size: 0.8rem; color: var(--muted); }
+    .signin-link a { color: #4ade80; font-weight: 600; cursor: pointer; text-decoration: none; }
     .signin-link a:hover { text-decoration: underline; }
 
     /* ─── FORM CARD ───────────────────────────────── */
@@ -194,10 +166,7 @@
       backdrop-filter: blur(8px);
     }
 
-    .form-header {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 22px;
-    }
+    .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
     .back-btn {
       width: 36px; height: 36px; border-radius: 12px;
       border: 1px solid var(--border);
@@ -208,11 +177,7 @@
       flex-shrink: 0;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); transform: translateX(-2px); }
-
-    .form-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.2rem; font-weight: 700;
-    }
+    .form-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; }
     .form-subtitle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
     .role-pill {
@@ -236,9 +201,7 @@
       cursor: pointer; transition: background 0.18s, color 0.18s;
       font-family: 'DM Sans', sans-serif;
     }
-    .toggle-btn.active {
-      background: rgba(255,255,255,0.1); color: var(--text);
-    }
+    .toggle-btn.active { background: rgba(255,255,255,0.1); color: var(--text); }
 
     /* ─── INPUTS ──────────────────────────────────── */
     .field { margin-bottom: 14px; }
@@ -247,7 +210,6 @@
       color: var(--muted); margin-bottom: 6px; letter-spacing: 0.03em;
     }
     .field label span { color: #f87171; margin-left: 2px; }
-
     .input-wrap { position: relative; }
     .input-wrap .icon {
       position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
@@ -300,14 +262,8 @@
       transition: all 0.18s;
       font-family: 'DM Sans', sans-serif;
     }
-    .momo-btn.mtn.active {
-      background: rgba(250,204,21,0.15); border-color: rgba(250,204,21,0.5);
-      color: #facc15;
-    }
-    .momo-btn.airtel.active {
-      background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5);
-      color: #f87171;
-    }
+    .momo-btn.mtn.active  { background: rgba(250,204,21,0.15); border-color: rgba(250,204,21,0.5); color: #facc15; }
+    .momo-btn.airtel.active { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #f87171; }
 
     /* ─── SUBMIT BTN ──────────────────────────────── */
     .submit-btn {
@@ -337,26 +293,23 @@
     .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .submit-btn:active { transform: translateY(0); }
 
-    /* ─── ERROR / SUCCESS MESSAGES ────────────────── */
+    /* ─── MESSAGES ────────────────────────────────── */
     .msg {
       padding: 10px 14px; border-radius: 10px;
       font-size: 0.78rem; margin-bottom: 12px;
       display: none; animation: fadeUp 0.3s both;
     }
-    .msg.error { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #fca5a5; }
-    .msg.success { background: rgba(22,163,74,0.12); border: 1px solid rgba(22,163,74,0.35); color: #86efac; }
+    .msg.error   { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #fca5a5; }
+    .msg.success { background: rgba(22,163,74,0.12);  border: 1px solid rgba(22,163,74,0.35);  color: #86efac; }
     .msg.show { display: block; }
 
-    /* ─── DASHBOARD SCREEN ────────────────────────── */
+    /* ─── DASHBOARD CLIENT (inchangé) ─────────────── */
     .dashboard {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px; padding: 24px;
     }
-    .dash-header {
-      display: flex; align-items: center; gap: 14px;
-      margin-bottom: 20px;
-    }
+    .dash-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
     .dash-avatar {
       width: 52px; height: 52px; border-radius: 16px;
       object-fit: cover;
@@ -366,10 +319,7 @@
       font-size: 1.4rem; flex-shrink: 0;
     }
     .dash-welcome { flex: 1; }
-    .dash-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.05rem; font-weight: 700;
-    }
+    .dash-name { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
     .dash-role-badge {
       display: inline-block; margin-top: 3px;
       padding: 2px 10px; border-radius: 999px;
@@ -408,10 +358,7 @@
     .dash-action.orange:hover { border-color: rgba(234,88,12,0.5); background: rgba(234,88,12,0.07); }
     .dash-action.green:hover  { border-color: rgba(22,163,74,0.5);  background: rgba(22,163,74,0.07); }
     .dash-action-icon { font-size: 1.6rem; margin-bottom: 6px; }
-    .dash-action-label {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.78rem; font-weight: 700; color: var(--text);
-    }
+    .dash-action-label { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text); }
     .dash-action-desc { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
 
     .dash-info-grid { display: grid; gap: 8px; }
@@ -438,9 +385,7 @@
     .open-app-btn.client   { background: linear-gradient(135deg, #16a34a, #22c55e); color: #022c22; box-shadow: 0 8px 28px rgba(22,163,74,0.35); }
     .open-app-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
 
-    @media (max-width: 480px) {
-      #app { padding: 16px 12px; }
-    }
+    @media (max-width: 480px) { #app { padding: 16px 12px; } }
   </style>
 </head>
 <body>
@@ -453,9 +398,7 @@
 
 <div id="app">
 
-  <!-- ══════════════════════════════════
-       SCREEN 1 : LANDING
-  ══════════════════════════════════ -->
+  <!-- ══════ SCREEN 1 : LANDING ══════ -->
   <div class="screen active" id="screen-landing">
     <div style="text-align:center; margin-bottom:28px;">
       <div class="logo-emblem">🍲</div>
@@ -493,9 +436,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       SCREEN 2 : INSCRIPTION VENDEUSE
-  ══════════════════════════════════ -->
+  <!-- ══════ SCREEN 2 : INSCRIPTION VENDEUSE ══════ -->
   <div class="screen" id="screen-register-vendeuse">
     <div class="form-card">
       <div class="form-header">
@@ -510,11 +451,10 @@
       <div class="msg error" id="err-vendeuse"></div>
       <div class="msg success" id="ok-vendeuse"></div>
 
-      <!-- Photo de profil -->
       <div class="field">
         <label>Photo de profil <span>*</span></label>
         <label class="photo-upload" id="photo-label-v" for="photo-input-v">
-          <input type="file" id="photo-input-v" accept="image/*" onchange="previewPhoto(this,'preview-v','photo-label-v')" />
+          <input type="file" id="photo-input-v" accept="image/*" onchange="previewPhoto(this,'preview-v','photo-icon-v')" />
           <img id="preview-v" class="photo-preview" src="" alt="preview" />
           <div class="photo-icon" id="photo-icon-v">📷</div>
           <div class="photo-label"><strong>Cliquez</strong> pour ajouter votre photo</div>
@@ -526,6 +466,14 @@
         <div class="input-wrap">
           <span class="icon">👤</span>
           <input type="text" id="v-name" placeholder="Ex : Marie Moukala" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Localisation / Quartier <span>*</span></label>
+        <div class="input-wrap">
+          <span class="icon">📍</span>
+          <input type="text" id="v-location" placeholder="Ex : Bacongo, Rond-point Moukondo" />
         </div>
       </div>
 
@@ -547,9 +495,9 @@
       </div>
 
       <div class="field">
-        <label>Quartier & Adresse <span>*</span></label>
+        <label>Adresse détaillée <span>*</span></label>
         <div class="input-wrap">
-          <span class="icon">📍</span>
+          <span class="icon">🗺️</span>
           <textarea id="v-address" placeholder="Ex : Poto-Poto, rue du marché, face à l'église catholique"></textarea>
         </div>
       </div>
@@ -572,9 +520,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       SCREEN 3 : INSCRIPTION CLIENT
-  ══════════════════════════════════ -->
+  <!-- ══════ SCREEN 3 : INSCRIPTION CLIENT ══════ -->
   <div class="screen" id="screen-register-client">
     <div class="form-card">
       <div class="form-header">
@@ -589,11 +535,10 @@
       <div class="msg error" id="err-client"></div>
       <div class="msg success" id="ok-client"></div>
 
-      <!-- Photo de profil -->
       <div class="field">
         <label>Photo de profil</label>
-        <label class="photo-upload" id="photo-label-c" for="photo-input-c" style="border-color: rgba(22,163,74,0.35); background: rgba(22,163,74,0.03);">
-          <input type="file" id="photo-input-c" accept="image/*" onchange="previewPhoto(this,'preview-c','photo-label-c')" />
+        <label class="photo-upload" id="photo-label-c" for="photo-input-c" style="border-color:rgba(22,163,74,0.35);background:rgba(22,163,74,0.03);">
+          <input type="file" id="photo-input-c" accept="image/*" onchange="previewPhoto(this,'preview-c','photo-icon-c')" />
           <img id="preview-c" class="photo-preview" src="" alt="preview" />
           <div class="photo-icon" id="photo-icon-c">📷</div>
           <div class="photo-label" style="color:#64748b;"><strong style="color:#4ade80;">Cliquez</strong> pour ajouter une photo (facultatif)</div>
@@ -657,9 +602,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       SCREEN 4 : CONNEXION
-  ══════════════════════════════════ -->
+  <!-- ══════ SCREEN 4 : CONNEXION ══════ -->
   <div class="screen" id="screen-login">
     <div style="text-align:center; margin-bottom:24px;">
       <div class="logo-emblem">🍲</div>
@@ -675,7 +618,6 @@
         </div>
       </div>
 
-      <!-- Role toggle -->
       <div class="form-toggle">
         <button class="toggle-btn active" id="login-toggle-v" onclick="setLoginRole('vendeuse')" type="button">👩‍🍳 Vendeuse</button>
         <button class="toggle-btn" id="login-toggle-c" onclick="setLoginRole('client')" type="button">🙋 Client(e)</button>
@@ -708,9 +650,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       SCREEN 5 : DASHBOARD
-  ══════════════════════════════════ -->
+  <!-- ══════ SCREEN 5 : DASHBOARD CLIENT ══════ -->
   <div class="screen" id="screen-dashboard">
     <div class="dashboard">
       <div class="dash-header">
@@ -723,18 +663,12 @@
       </div>
 
       <p class="dash-section-title">Mes actions rapides</p>
-      <div class="dash-actions" id="dash-actions">
-        <!-- filled by JS -->
-      </div>
+      <div class="dash-actions" id="dash-actions"></div>
 
       <p class="dash-section-title">Mon profil</p>
-      <div class="dash-info-grid" id="dash-info">
-        <!-- filled by JS -->
-      </div>
+      <div class="dash-info-grid" id="dash-info"></div>
 
-      <button class="open-app-btn" id="dash-open-btn" onclick="openMainApp()">
-        <!-- filled by JS -->
-      </button>
+      <button class="open-app-btn" id="dash-open-btn" onclick="openMainApp()"></button>
     </div>
   </div>
 
@@ -742,14 +676,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── Supabase ──────────────────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://rxkzbpyaqwziandloaoz.supabase.co';
-const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+// ── Supabase ─────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── State ─────────────────────────────────────────────────────────────────
-let currentLoginRole = 'client';
-let currentUser = null;  // { role, name, phone, momo, address, quartier, photo_url }
+let currentLoginRole = 'vendeuse';
+let currentUser = null;
 
 // ── Navigation ────────────────────────────────────────────────────────────
 function goTo(screenId) {
@@ -757,23 +691,20 @@ function goTo(screenId) {
   const el = document.getElementById(screenId);
   if (el) { el.classList.add('active'); window.scrollTo(0,0); }
 }
-
 function goToRegister(role) {
   goTo(role === 'vendeuse' ? 'screen-register-vendeuse' : 'screen-register-client');
 }
-
 function goToLogin() { goTo('screen-login'); }
 
 // ── Photo preview ─────────────────────────────────────────────────────────
-function previewPhoto(input, previewId, labelId) {
+function previewPhoto(input, previewId, iconId) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = document.getElementById(previewId);
-    img.src = e.target.result;
-    img.style.display = 'block';
-    const icon = document.getElementById(labelId.replace('photo-label','photo-icon'));
+    img.src = e.target.result; img.style.display = 'block';
+    const icon = document.getElementById(iconId);
     if (icon) icon.style.display = 'none';
   };
   reader.readAsDataURL(file);
@@ -781,8 +712,7 @@ function previewPhoto(input, previewId, labelId) {
 
 // ── Mobile Money selector ─────────────────────────────────────────────────
 function selectMomo(btn, hiddenId, val) {
-  const parent = btn.parentElement;
-  parent.querySelectorAll('.momo-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.momo-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(hiddenId).value = val;
 }
@@ -809,44 +739,40 @@ function showMsg(id, type, text) {
 function validatePhone(p) { return /^(\+242)?0[5-6]\d{7}$/.test(p.replace(/\s/g,'')); }
 function validatePassword(p) { return p.length >= 6; }
 
-// ─────────────────────────────────────────────────────────────────────────
-// REGISTER VENDEUSE
-// Saves to localStorage (replace with Supabase insert in production)
-// ─────────────────────────────────────────────────────────────────────────
+// ── REGISTER VENDEUSE ─────────────────────────────────────────────────────
 async function registerVendeuse() {
   const name     = document.getElementById('v-name').value.trim();
+  const location = document.getElementById('v-location').value.trim();
   const momo     = document.getElementById('v-momo').value;
   const phone    = document.getElementById('v-phone').value.trim();
   const address  = document.getElementById('v-address').value.trim();
   const password = document.getElementById('v-password').value;
   const photoFile= document.getElementById('photo-input-v').files[0];
 
-  if (!name)                             return showMsg('err-vendeuse','error','⚠️ Veuillez saisir votre nom et prénom.');
-  if (!validatePhone(phone))             return showMsg('err-vendeuse','error','⚠️ Numéro de téléphone invalide (format : +242 06 XXX XX XX).');
-  if (!address)                          return showMsg('err-vendeuse','error','⚠️ Veuillez indiquer votre quartier et adresse.');
-  if (!validatePassword(password))       return showMsg('err-vendeuse','error','⚠️ Le mot de passe doit contenir au moins 6 caractères.');
+  if (!name)                       return showMsg('err-vendeuse','error','⚠️ Veuillez saisir votre nom et prénom.');
+  if (!location)                   return showMsg('err-vendeuse','error','⚠️ Veuillez saisir votre localisation.');
+  if (!validatePhone(phone))       return showMsg('err-vendeuse','error','⚠️ Numéro de téléphone invalide.');
+  if (!address)                    return showMsg('err-vendeuse','error','⚠️ Veuillez indiquer votre adresse.');
+  if (!validatePassword(password)) return showMsg('err-vendeuse','error','⚠️ Le mot de passe doit contenir au moins 6 caractères.');
 
   let photo_url = '';
-  if (photoFile) {
-    photo_url = await fileToBase64(photoFile);
-  }
+  if (photoFile) photo_url = await fileToBase64(photoFile);
 
-  // Save to localStorage (in production: Supabase insert into 'users' table)
   const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
-  const exists = users.find(u => u.phone === phone);
-  if (exists) return showMsg('err-vendeuse','error','⚠️ Ce numéro est déjà enregistré. Connectez-vous.');
+  if (users.find(u => u.phone === phone)) return showMsg('err-vendeuse','error','⚠️ Ce numéro est déjà enregistré.');
 
-  const newUser = { role:'vendeuse', name, momo, phone, address, password, photo_url, created_at: new Date().toISOString() };
+  const newUser = {
+    role: 'vendeuse', name, location, momo, phone, address, password, photo_url,
+    created_at: new Date().toISOString()
+  };
   users.push(newUser);
   localStorage.setItem('maboke_users', JSON.stringify(users));
 
-  showMsg('ok-vendeuse','success','✅ Compte créé avec succès ! Connexion en cours…');
-  setTimeout(() => loadDashboard(newUser), 1200);
+  showMsg('ok-vendeuse','success','✅ Compte créé ! Redirection vers votre espace…');
+  setTimeout(() => redirectVendeuse(newUser), 1200);
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// REGISTER CLIENT
-// ─────────────────────────────────────────────────────────────────────────
+// ── REGISTER CLIENT ───────────────────────────────────────────────────────
 async function registerClient() {
   const name     = document.getElementById('c-name').value.trim();
   const momo     = document.getElementById('c-momo').value;
@@ -855,17 +781,15 @@ async function registerClient() {
   const password = document.getElementById('c-password').value;
   const photoFile= document.getElementById('photo-input-c').files[0];
 
-  if (!name)                       return showMsg('err-client','error','⚠️ Veuillez saisir votre nom et prénom.');
-  if (!quartier)                   return showMsg('err-client','error','⚠️ Veuillez choisir votre quartier de livraison.');
+  if (!name)                       return showMsg('err-client','error','⚠️ Veuillez saisir votre nom.');
+  if (!quartier)                   return showMsg('err-client','error','⚠️ Veuillez choisir votre quartier.');
   if (!validatePassword(password)) return showMsg('err-client','error','⚠️ Le mot de passe doit contenir au moins 6 caractères.');
 
   let photo_url = '';
   if (photoFile) photo_url = await fileToBase64(photoFile);
 
   const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
-  if (phone && users.find(u => u.phone === phone)) {
-    return showMsg('err-client','error','⚠️ Ce numéro est déjà enregistré. Connectez-vous.');
-  }
+  if (phone && users.find(u => u.phone === phone)) return showMsg('err-client','error','⚠️ Ce numéro est déjà enregistré.');
 
   const newUser = { role:'client', name, momo, phone, quartier, password, photo_url, created_at: new Date().toISOString() };
   users.push(newUser);
@@ -875,9 +799,7 @@ async function registerClient() {
   setTimeout(() => loadDashboard(newUser), 1200);
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// LOGIN
-// ─────────────────────────────────────────────────────────────────────────
+// ── LOGIN ─────────────────────────────────────────────────────────────────
 function loginUser() {
   const phone    = document.getElementById('login-phone').value.trim();
   const password = document.getElementById('login-password').value;
@@ -887,123 +809,91 @@ function loginUser() {
   const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
   const user  = users.find(u => u.phone === phone && u.password === password && u.role === currentLoginRole);
 
-  if (!user) {
-    return showMsg('err-login','error','❌ Numéro, mot de passe ou rôle incorrect. Vérifiez vos informations.');
-  }
+  if (!user) return showMsg('err-login','error','❌ Numéro, mot de passe ou rôle incorrect.');
 
-  loadDashboard(user);
+  // ── ROUTING : vendeuse → vendeuse.html, client → dashboard intégré
+  if (user.role === 'vendeuse') {
+    redirectVendeuse(user);
+  } else {
+    loadDashboard(user);
+  }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// DASHBOARD
-// ─────────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// REDIRECTION VENDEUSE → vendeuse.html
+// Sauvegarde la session et redirige
+// ══════════════════════════════════════════════════════════════════════════
+function redirectVendeuse(user) {
+  localStorage.setItem('maboke_session', JSON.stringify(user));
+  // Pré-remplir aussi le profil vendeuse pour vendeuse.html
+  localStorage.setItem('maboke_vendor_profile', JSON.stringify({
+    name: user.name,
+    location: user.location || user.address || '',
+  }));
+  window.location.href = 'vendeuse.html';
+}
+
+// ── DASHBOARD CLIENT ──────────────────────────────────────────────────────
 function loadDashboard(user) {
   currentUser = user;
   localStorage.setItem('maboke_session', JSON.stringify(user));
 
-  // Avatar
   const avatarEl = document.getElementById('dash-avatar');
   if (user.photo_url) {
     avatarEl.innerHTML = `<img src="${user.photo_url}" style="width:100%;height:100%;border-radius:14px;object-fit:cover;" />`;
   } else {
-    avatarEl.textContent = user.role === 'vendeuse' ? '👩‍🍳' : '🙋';
+    avatarEl.textContent = '🙋';
   }
 
   document.getElementById('dash-name').textContent = user.name;
-
   const badge = document.getElementById('dash-role-badge');
-  badge.textContent = user.role === 'vendeuse' ? '👩‍🍳 Vendeuse' : '🙋 Client(e)';
-  badge.className   = 'dash-role-badge ' + user.role;
+  badge.textContent = '🙋 Client(e)';
+  badge.className = 'dash-role-badge client';
 
-  // Actions selon le rôle
-  const actionsEl = document.getElementById('dash-actions');
-  if (user.role === 'vendeuse') {
-    actionsEl.innerHTML = `
-      <div class="dash-action orange" onclick="alert('Fonctionnalité : ajouter un plat au catalogue')">
-        <div class="dash-action-icon">🍲</div>
-        <div class="dash-action-label">Ajouter un plat</div>
-        <div class="dash-action-desc">Mettre en vente</div>
-      </div>
-      <div class="dash-action orange" onclick="alert('Fonctionnalité : voir mes commandes reçues')">
-        <div class="dash-action-icon">📦</div>
-        <div class="dash-action-label">Commandes</div>
-        <div class="dash-action-desc">Reçues aujourd'hui</div>
-      </div>
-      <div class="dash-action orange" onclick="alert('Fonctionnalité : gérer mon stock')">
-        <div class="dash-action-icon">📊</div>
-        <div class="dash-action-label">Mon stock</div>
-        <div class="dash-action-desc">Portions restantes</div>
-      </div>
-      <div class="dash-action orange" onclick="alert('Fonctionnalité : mes recettes du jour')">
-        <div class="dash-action-icon">💰</div>
-        <div class="dash-action-label">Mes gains</div>
-        <div class="dash-action-desc">Recettes du jour</div>
-      </div>`;
-  } else {
-    actionsEl.innerHTML = `
-      <div class="dash-action green" onclick="openMainApp()">
-        <div class="dash-action-icon">🛒</div>
-        <div class="dash-action-label">Commander</div>
-        <div class="dash-action-desc">Voir les plats dispo</div>
-      </div>
-      <div class="dash-action green" onclick="alert('Fonctionnalité : mes commandes passées')">
-        <div class="dash-action-icon">🧾</div>
-        <div class="dash-action-label">Mes commandes</div>
-        <div class="dash-action-desc">Historique</div>
-      </div>
-      <div class="dash-action green" onclick="alert('Fonctionnalité : mes plats favoris')">
-        <div class="dash-action-icon">❤️</div>
-        <div class="dash-action-label">Favoris</div>
-        <div class="dash-action-desc">Plats sauvegardés</div>
-      </div>
-      <div class="dash-action green" onclick="window.open('https://wa.me/24266142933','_blank')">
-        <div class="dash-action-icon">💬</div>
-        <div class="dash-action-label">Support</div>
-        <div class="dash-action-desc">Nous contacter</div>
-      </div>`;
-  }
+  document.getElementById('dash-actions').innerHTML = `
+    <div class="dash-action green" onclick="alert('🛒 Catalogue des plats disponibles')">
+      <div class="dash-action-icon">🛒</div>
+      <div class="dash-action-label">Commander</div>
+      <div class="dash-action-desc">Voir les plats dispo</div>
+    </div>
+    <div class="dash-action green" onclick="alert('🧾 Mes commandes passées')">
+      <div class="dash-action-icon">🧾</div>
+      <div class="dash-action-label">Mes commandes</div>
+      <div class="dash-action-desc">Historique</div>
+    </div>
+    <div class="dash-action green" onclick="alert('❤️ Mes plats favoris')">
+      <div class="dash-action-icon">❤️</div>
+      <div class="dash-action-label">Favoris</div>
+      <div class="dash-action-desc">Plats sauvegardés</div>
+    </div>
+    <div class="dash-action green" onclick="window.open('https://wa.me/24266142933','_blank')">
+      <div class="dash-action-icon">💬</div>
+      <div class="dash-action-label">Support</div>
+      <div class="dash-action-desc">Nous contacter</div>
+    </div>`;
 
-  // Infos profil
-  const infoEl = document.getElementById('dash-info');
-  const rows = [
+  const labels = { 'poto-poto':'Poto-Poto','bacongo':'Bacongo','talangai':'Talangaï','autre':'Autre' };
+  document.getElementById('dash-info').innerHTML = [
     { key:'📱 Téléphone', val: user.phone || '—' },
     { key:'💳 Mobile Money', val: user.momo === 'mtn' ? '⭐ MTN MoMo' : '🔴 Airtel Money' },
-  ];
-  if (user.role === 'vendeuse') {
-    rows.push({ key:'📍 Adresse', val: user.address || '—' });
-  } else {
-    const labels = { 'poto-poto':'Poto-Poto', 'bacongo':'Bacongo', 'talangai':'Talangaï', 'autre':'Autre' };
-    rows.push({ key:'🏘️ Quartier', val: labels[user.quartier] || user.quartier || '—' });
-  }
-  infoEl.innerHTML = rows.map(r => `
-    <div class="info-row"><span class="key">${r.key}</span><span class="val">${r.val}</span></div>
-  `).join('');
+    { key:'🏘️ Quartier', val: labels[user.quartier] || user.quartier || '—' },
+  ].map(r => `<div class="info-row"><span class="key">${r.key}</span><span class="val">${r.val}</span></div>`).join('');
 
-  // CTA button
   const openBtn = document.getElementById('dash-open-btn');
-  openBtn.className = 'open-app-btn ' + user.role;
-  if (user.role === 'vendeuse') {
-    openBtn.innerHTML = '👩‍🍳 Gérer ma boutique Maboke →';
-  } else {
-    openBtn.innerHTML = '🛒 Commander des plats maintenant →';
-  }
+  openBtn.className = 'open-app-btn client';
+  openBtn.innerHTML = '🛒 Commander des plats maintenant →';
 
   goTo('screen-dashboard');
 }
 
 function openMainApp() {
-  // En production : window.location.href = 'maboke.html' (ou vendeuse.html)
-  // Pour la démo, on affiche une alerte contextuelle
-  if (currentUser && currentUser.role === 'vendeuse') {
-    alert('🍲 Redirection vers votre tableau de bord Vendeuse (vendeuse.html).\n\nDans Cursor, reliez ce bouton à : window.location.href = "vendeuse.html"');
-  } else {
-    alert('🛒 Redirection vers le catalogue client (maboke.html).\n\nDans Cursor, reliez ce bouton à : window.location.href = "maboke.html"');
-  }
+  alert('🛒 Redirection vers le catalogue client (maboke.html).');
 }
 
 function logout() {
   currentUser = null;
   localStorage.removeItem('maboke_session');
+  localStorage.removeItem('maboke_vendor_profile');
   goTo('screen-landing');
 }
 
@@ -1016,13 +906,18 @@ function fileToBase64(file) {
   });
 }
 
-// ── Auto-login si session existante ───────────────────────────────────────
+// ── Auto-login ────────────────────────────────────────────────────────────
 (function init() {
   const saved = localStorage.getItem('maboke_session');
   if (saved) {
     try {
       const user = JSON.parse(saved);
       if (user && user.role && user.name) {
+        if (user.role === 'vendeuse') {
+          // Vendeuse déjà connectée → rediriger directement
+          window.location.href = 'vendeuse.html';
+          return;
+        }
         loadDashboard(user);
         return;
       }
