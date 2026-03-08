@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maboke — Dashboard Vendeuse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green:   #16a34a;
+      --green-l: #22c55e;
+      --orange:  #ea580c;
+      --orange-l:#f97316;
+      --gold:    #facc15;
+      --bg:      #060a0f;
+      --card:    #0d1520;
+      --card2:   #111c2d;
+      --border:  rgba(255,255,255,0.08);
+      --text:    #f1f5f9;
+      --muted:   #64748b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ─── ANIMATED BG ─────────────────────────────── */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.15; animation: drift 14s ease-in-out infinite alternate; }
+    .bg-blob:nth-child(1) { width:520px; height:520px; background:#16a34a; top:-120px; left:-100px; animation-delay:0s; }
+    .bg-blob:nth-child(2) { width:400px; height:400px; background:#ea580c; bottom:-80px; right:-80px; animation-delay:-5s; }
+    .bg-blob:nth-child(3) { width:300px; height:300px; background:#facc15; top:40%; left:55%; animation-delay:-9s; }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ─── WRAPPER ─────────────────────────────────── */
+    #app {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 24px 16px;
+    }
+
+    /* ─── MAIN DASHBOARD CONTAINER ────────────────── */
+    .dash-container {
+      width: 100%; max-width: 480px;
+      display: flex; flex-direction: column; gap: 14px;
+      animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── HEADER ──────────────────────────────────── */
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .avatar {
+      width: 52px; height: 52px; border-radius: 16px;
+      background: linear-gradient(135deg, #ea580c, #facc15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+      border: 2px solid rgba(234,88,12,0.4);
+    }
+    .header-info { flex: 1; }
+    .header-name { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
+    .header-badge {
+      display: inline-block; margin-top: 3px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      background: rgba(234,88,12,0.2); color: #fb923c; border: 1px solid rgba(234,88,12,0.3);
+    }
+    .logout-btn {
+      padding: 7px 14px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted); font-size: 0.75rem; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.18s, color 0.18s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+
+    /* ─── SECTION TITLE ───────────────────────────── */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2px;
+      padding: 0 2px;
+    }
+
+    /* ─── REVENUS CARD ────────────────────────────── */
+    .revenus-card {
+      background: var(--card);
+      border: 1px solid rgba(234,88,12,0.25);
+      border-radius: 24px; padding: 22px;
+      position: relative; overflow: hidden;
+    }
+    .revenus-card::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(234,88,12,0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .revenus-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .revenus-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+    .revenus-amount {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      line-height: 1;
+    }
+    .revenus-currency { font-size: 1rem; font-weight: 600; color: var(--muted); margin-top: 4px; }
+
+    .revenus-badge {
+      padding: 6px 12px; border-radius: 12px;
+      background: rgba(22,163,74,0.15); border: 1px solid rgba(22,163,74,0.3);
+      color: #4ade80; font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .revenus-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.4); } }
+
+    /* Mini stats row */
+    .mini-stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px; margin-bottom: 18px;
+    }
+    .mini-stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px 10px; text-align: center;
+    }
+    .mini-stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 800; color: var(--text);
+    }
+    .mini-stat-label { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
+
+    /* ─── PAIEMENT BTN ────────────────────────────── */
+    .payout-btn {
+      width: 100%; padding: 14px;
+      border-radius: 16px; border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 800;
+      letter-spacing: 0.04em; cursor: pointer;
+      background: linear-gradient(135deg, #ea580c, #f97316, #facc15);
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(234,88,12,0.45);
+      position: relative; overflow: hidden;
+      transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .payout-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.15), transparent);
+    }
+    .payout-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 12px 40px rgba(234,88,12,0.55); }
+    .payout-btn:active { transform: translateY(0); }
+    .payout-btn:disabled {
+      opacity: 0.45; cursor: not-allowed;
+      transform: none; filter: none;
+      box-shadow: 0 4px 16px rgba(234,88,12,0.2);
+    }
+    .payout-btn .btn-icon { font-size: 1.2rem; position: relative; z-index: 1; }
+    .payout-btn .btn-text { position: relative; z-index: 1; }
+
+    .payout-note {
+      text-align: center; font-size: 0.7rem; color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ─── HISTORIQUE COMMANDES ────────────────────── */
+    .orders-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 20px;
+    }
+    .orders-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .orders-filter {
+      display: flex; gap: 6px;
+    }
+    .filter-btn {
+      padding: 4px 12px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.68rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .filter-btn.active {
+      background: rgba(234,88,12,0.15);
+      border-color: rgba(234,88,12,0.4);
+      color: #fb923c;
+    }
+
+    .order-list { display: flex; flex-direction: column; gap: 8px; }
+    .order-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      transition: background 0.18s;
+    }
+    .order-item:hover { background: rgba(255,255,255,0.04); }
+    .order-emoji { font-size: 1.4rem; flex-shrink: 0; }
+    .order-info { flex: 1; }
+    .order-name { font-size: 0.82rem; font-weight: 600; }
+    .order-meta { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .order-amount {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 700;
+      color: #4ade80;
+    }
+    .order-status {
+      padding: 3px 8px; border-radius: 6px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+    }
+    .order-status.livré { background: rgba(22,163,74,0.15); color: #4ade80; }
+    .order-status.en-cours { background: rgba(250,204,21,0.15); color: #fde047; }
+    .order-status.annulé { background: rgba(239,68,68,0.12); color: #f87171; }
+
+    .empty-state {
+      text-align: center; padding: 28px 16px;
+      color: var(--muted); font-size: 0.8rem;
+    }
+    .empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 8px; }
+
+    /* ─── GRAPHE HEBDO ────────────────────────────── */
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 20px;
+    }
+    .chart-bars {
+      display: flex; align-items: flex-end; gap: 8px;
+      height: 80px; margin-top: 14px; margin-bottom: 8px;
+    }
+    .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-wrap { flex: 1; display: flex; align-items: flex-end; width: 100%; }
+    .bar {
+      width: 100%; border-radius: 6px 6px 0 0;
+      background: rgba(234,88,12,0.25);
+      transition: height 0.6s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative; overflow: hidden;
+      min-height: 4px;
+    }
+    .bar.today {
+      background: linear-gradient(180deg, #f97316, #ea580c);
+      box-shadow: 0 0 16px rgba(249,115,22,0.4);
+    }
+    .bar::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.15), transparent);
+    }
+    .bar-label { font-size: 0.6rem; color: var(--muted); }
+
+    /* ─── MODAL PAIEMENT ─────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(6,10,15,0.85);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card);
+      border: 1px solid rgba(234,88,12,0.3);
+      border-radius: 28px; padding: 28px 24px;
+      width: 100%; max-width: 380px;
+      transform: scale(0.92) translateY(16px);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .modal-overlay.show .modal { transform: scale(1) translateY(0); }
+
+    .modal-icon { font-size: 2.8rem; text-align: center; margin-bottom: 12px; }
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem; font-weight: 800;
+      text-align: center; margin-bottom: 4px;
+    }
+    .modal-subtitle { text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 22px; }
+
+    .modal-amount-box {
+      background: rgba(234,88,12,0.08);
+      border: 1px solid rgba(234,88,12,0.25);
+      border-radius: 16px; padding: 16px;
+      text-align: center; margin-bottom: 18px;
+    }
+    .modal-amount-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+    .modal-amount-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .modal-amount-curr { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .modal-momo-choice {
+      display: flex; gap: 8px; margin-bottom: 18px;
+    }
+    .modal-momo-btn {
+      flex: 1; padding: 10px 8px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: all 0.18s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .modal-momo-btn.mtn.active { background: rgba(250,204,21,0.15); border-color: rgba(250,204,21,0.5); color: #facc15; }
+    .modal-momo-btn.airtel.active { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #f87171; }
+
+    .modal-confirm-btn {
+      width: 100%; padding: 13px;
+      border-radius: 14px; border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem; font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ea580c, #f97316);
+      color: #fff;
+      box-shadow: 0 8px 28px rgba(234,88,12,0.4);
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .modal-confirm-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .modal-cancel-btn {
+      width: 100%; padding: 10px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: 0.8rem; cursor: pointer; margin-top: 8px;
+      font-family: 'DM Sans', sans-serif;
+      transition: color 0.18s;
+    }
+    .modal-cancel-btn:hover { color: var(--text); }
+
+    /* ─── SUCCESS STATE ──────────────────────────── */
+    .success-anim {
+      text-align: center; padding: 8px 0;
+    }
+    .success-check {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(22,163,74,0.15);
+      border: 2px solid rgba(22,163,74,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin: 0 auto 14px;
+      animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes bounceIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 800; color: #4ade80; margin-bottom: 6px;
+    }
+    .success-desc { color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+
+    /* ─── TOAST ──────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--card2); border: 1px solid rgba(22,163,74,0.4);
+      border-radius: 14px; padding: 12px 20px;
+      font-size: 0.8rem; color: #86efac;
+      z-index: 200; white-space: nowrap;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+      opacity: 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 480px) {
+      #app { padding: 14px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
+
+<div id="app">
+  <div class="dash-container">
+
+    <!-- HEADER -->
+    <div class="header-card">
+      <div class="avatar" id="dash-avatar">👩‍🍳</div>
+      <div class="header-info">
+        <div class="header-name" id="dash-name">Marie Moukala</div>
+        <span class="header-badge">👩‍🍳 Vendeuse</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <!-- REVENUS DU JOUR -->
+    <p class="section-title">💰 Revenus du jour</p>
+    <div class="revenus-card">
+      <div class="revenus-top">
+        <div>
+          <div class="revenus-label">Chiffre d'affaires — <span id="date-today"></span></div>
+          <div class="revenus-amount" id="ca-amount">0</div>
+          <div class="revenus-currency">FCFA</div>
+        </div>
+        <div class="revenus-badge">
+          <span class="dot"></span>
+          <span id="commandes-count">0 commande(s)</span>
+        </div>
+      </div>
+
+      <!-- Mini stats -->
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat-val" id="stat-livrees">0</div>
+          <div class="mini-stat-label">Livrées</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-val" id="stat-en-cours">0</div>
+          <div class="mini-stat-label">En cours</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-val" id="stat-moy">0</div>
+          <div class="mini-stat-label">FCFA/cmd</div>
+        </div>
+      </div>
+
+      <!-- Bouton toucher les gains -->
+      <button class="payout-btn" id="payout-btn" onclick="openPayoutModal()" disabled>
+        <span class="btn-icon">💸</span>
+        <span class="btn-text">Toucher mes gains</span>
+      </button>
+      <div class="payout-note" id="payout-note">Aucun revenu disponible pour aujourd'hui</div>
+    </div>
+
+    <!-- GRAPHE SEMAINE -->
+    <p class="section-title">📊 Revenus — 7 derniers jours</p>
+    <div class="chart-card">
+      <div class="chart-bars" id="chart-bars">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- COMMANDES DU JOUR -->
+    <p class="section-title">📦 Commandes reçues</p>
+    <div class="orders-card">
+      <div class="orders-header">
+        <div style="font-size:0.78rem; color: var(--muted);" id="orders-date-label">Aujourd'hui</div>
+        <div class="orders-filter">
+          <button class="filter-btn active" onclick="filterOrders('all', this)">Toutes</button>
+          <button class="filter-btn" onclick="filterOrders('livré', this)">Livrées</button>
+          <button class="filter-btn" onclick="filterOrders('en-cours', this)">En cours</button>
+        </div>
+      </div>
+      <div class="order-list" id="order-list">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- ACTIONS RAPIDES -->
+    <p class="section-title">⚡ Actions rapides</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-bottom:24px;">
+      <div class="order-item" style="cursor:pointer; flex-direction:column; gap:6px; text-align:center; padding:16px;"
+           onclick="alert('➕ Fonctionnalité : ajouter un plat')">
+        <div style="font-size:1.6rem;">🍲</div>
+        <div style="font-size:0.78rem; font-weight:700;">Ajouter un plat</div>
+      </div>
+      <div class="order-item" style="cursor:pointer; flex-direction:column; gap:6px; text-align:center; padding:16px;"
+           onclick="alert('📱 Fonctionnalité : partager ma boutique')">
+        <div style="font-size:1.6rem;">📱</div>
+        <div style="font-size:0.78rem; font-weight:700;">Partager boutique</div>
+      </div>
+    </div>
+
+  </div><!-- /.dash-container -->
+</div><!-- /#app -->
+
+<!-- ══════════════════════════════════════════
+     MODAL PAIEMENT
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div id="modal-content-default">
+      <div class="modal-icon">💸</div>
+      <div class="modal-title">Toucher mes gains</div>
+      <div class="modal-subtitle">Choisissez votre opérateur Mobile Money</div>
+
+      <div class="modal-amount-box">
+        <div class="modal-amount-label">Montant à recevoir</div>
+        <div class="modal-amount-val" id="modal-amount">0</div>
+        <div class="modal-amount-curr">FCFA · Maboke → votre compte</div>
+      </div>
+
+      <div class="modal-momo-choice">
+        <button class="modal-momo-btn mtn active" id="modal-mtn" onclick="selectModalMomo('mtn')" type="button">
+          ⭐ MTN MoMo
+        </button>
+        <button class="modal-momo-btn airtel" id="modal-airtel" onclick="selectModalMomo('airtel')" type="button">
+          🔴 Airtel Money
+        </button>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:18px; font-size:0.75rem; color:var(--muted);">
+        📱 Numéro de paiement : <strong style="color:var(--text);" id="modal-phone-display">+242 06 XXX XX XX</strong>
+      </div>
+
+      <button class="modal-confirm-btn" onclick="confirmPayout()">
+        ✅ Confirmer le virement
+      </button>
+      <button class="modal-cancel-btn" onclick="closeModal()">Annuler</button>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div id="modal-content-success" style="display:none;">
+      <div class="success-anim">
+        <div class="success-check">✅</div>
+        <div class="success-title">Virement initié !</div>
+        <div class="success-desc">
+          Votre virement de <strong id="success-amount" style="color:#4ade80;"></strong> FCFA<br/>
+          a été envoyé via <strong id="success-momo"></strong>.<br/><br/>
+          Vous recevrez une notification SMS sous <strong>5 à 15 minutes</strong>.
+        </div>
+        <button class="modal-confirm-btn" style="margin-top:20px; background:linear-gradient(135deg,#16a34a,#22c55e);" onclick="closeModal()">
+          Parfait, merci ! 🎉
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DONNÉES DE DÉMONSTRATION
+// En production : remplacez par des requêtes Supabase
+// ═══════════════════════════════════════════════════════════════
+
+const DEMO_USER = {
+  name: 'Marie Moukala',
+  phone: '+242 06 712 34 56',
+  momo: 'mtn',
+};
+
+// Commandes du jour (à remplacer par: await sb.from('commandes').select('*').eq('vendeuse_id', user.id).gte('created_at', todayISO))
+const DEMO_ORDERS = [
+  { id:1, plat:'Saka-Saka au poisson', emoji:'🥬', client:'Jean-Paul O.', heure:'08h30', montant:2500, statut:'livré' },
+  { id:2, plat:'Poulet braisé + Plantain', emoji:'🍗', client:'Ange M.', heure:'10h15', montant:3500, statut:'livré' },
+  { id:3, plat:'Moambe au poulet', emoji:'🍲', client:'Cécile N.', heure:'11h45', montant:3000, statut:'en-cours' },
+  { id:4, plat:'Beignets de banane', emoji:'🍌', client:'Rodrigue K.', heure:'12h00', montant:1500, statut:'en-cours' },
+  { id:5, plat:'Fufu + Soupe de légumes', emoji:'🫙', client:'Fabiola T.', heure:'07h00', montant:2000, statut:'livré' },
+];
+
+// Revenus 7 derniers jours (pour le graphe)
+const WEEKLY_DATA = [
+  { jour:'Lun', montant: 8500 },
+  { jour:'Mar', montant: 12000 },
+  { jour:'Mer', montant: 6500 },
+  { jour:'Jeu', montant: 15200 },
+  { jour:'Ven', montant: 9800 },
+  { jour:'Sam', montant: 18500 },
+  { jour:'Auj', montant: 0, isToday: true },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let selectedModalMomo = 'mtn';
+let allOrders = [...DEMO_ORDERS];
+let caJour = 0;
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function init() {
+  // Récupérer session localStorage (compatible avec votre code existant)
+  const session = localStorage.getItem('maboke_session');
+  let user = DEMO_USER;
+  if (session) {
+    try {
+      const u = JSON.parse(session);
+      if (u && u.role === 'vendeuse') {
+        user = u;
+      }
+    } catch(e) {}
+  }
+
+  // Header
+  document.getElementById('dash-name').textContent = user.name || 'Vendeuse';
+  document.getElementById('modal-phone-display').textContent = user.phone || '+242 06 XXX XX XX';
+  selectedModalMomo = user.momo || 'mtn';
+
+  // Date
+  const now = new Date();
+  const opts = { weekday:'long', day:'numeric', month:'long' };
+  document.getElementById('date-today').textContent = now.toLocaleDateString('fr-FR', opts);
+  document.getElementById('orders-date-label').textContent =
+    'Aujourd\'hui · ' + now.toLocaleDateString('fr-FR', { day:'numeric', month:'long' });
+
+  // Calculer CA
+  computeCA();
+  renderOrders(allOrders);
+  renderChart();
+}
+
+function computeCA() {
+  const livrees   = allOrders.filter(o => o.statut === 'livré');
+  const enCours   = allOrders.filter(o => o.statut === 'en-cours');
+  caJour = livrees.reduce((s, o) => s + o.montant, 0);
+
+  document.getElementById('ca-amount').textContent = caJour.toLocaleString('fr-FR');
+  document.getElementById('commandes-count').textContent = allOrders.length + ' commande(s)';
+  document.getElementById('stat-livrees').textContent = livrees.length;
+  document.getElementById('stat-en-cours').textContent = enCours.length;
+  const moy = allOrders.length > 0 ? Math.round(caJour / allOrders.length) : 0;
+  document.getElementById('stat-moy').textContent = moy.toLocaleString('fr-FR');
+
+  // Update today's bar in weekly data
+  WEEKLY_DATA[WEEKLY_DATA.length - 1].montant = caJour;
+
+  // Bouton paiement
+  const btn = document.getElementById('payout-btn');
+  const note = document.getElementById('payout-note');
+  document.getElementById('modal-amount').textContent = caJour.toLocaleString('fr-FR');
+
+  if (caJour > 0) {
+    btn.disabled = false;
+    note.textContent = '💳 ' + caJour.toLocaleString('fr-FR') + ' FCFA disponibles · Paiement sous 15 min';
+  } else {
+    btn.disabled = true;
+    note.textContent = 'Aucun revenu disponible pour aujourd\'hui';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════════════
+function renderOrders(orders) {
+  const list = document.getElementById('order-list');
+  if (!orders.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>Aucune commande pour le moment</div>`;
+    return;
+  }
+  list.innerHTML = orders.map(o => `
+    <div class="order-item">
+      <div class="order-emoji">${o.emoji}</div>
+      <div class="order-info">
+        <div class="order-name">${o.plat}</div>
+        <div class="order-meta">${o.client} · ${o.heure}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+        <div class="order-amount">+${o.montant.toLocaleString('fr-FR')}</div>
+        <span class="order-status ${o.statut}">${o.statut === 'livré' ? '✅ Livré' : o.statut === 'en-cours' ? '⏳ En cours' : '❌ Annulé'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterOrders(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = type === 'all' ? allOrders : allOrders.filter(o => o.statut === type);
+  renderOrders(filtered);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════════
+function renderChart() {
+  const max = Math.max(...WEEKLY_DATA.map(d => d.montant), 1);
+  const container = document.getElementById('chart-bars');
+  container.innerHTML = WEEKLY_DATA.map(d => {
+    const pct = Math.max((d.montant / max) * 100, 3);
+    return `
+      <div class="chart-col">
+        <div class="bar-wrap">
+          <div class="bar ${d.isToday ? 'today' : ''}" style="height:${pct}%;"></div>
+        </div>
+        <div class="bar-label">${d.jour}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL PAIEMENT
+// ═══════════════════════════════════════════════════════════════
+function openPayoutModal() {
+  document.getElementById('modal-content-default').style.display = 'block';
+  document.getElementById('modal-content-success').style.display = 'none';
+  // Sync momo selection
+  selectModalMomo(selectedModalMomo);
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  setTimeout(() => {
+    document.getElementById('modal-content-default').style.display = 'block';
+    document.getElementById('modal-content-success').style.display = 'none';
+  }, 300);
+}
+
+function selectModalMomo(type) {
+  selectedModalMomo = type;
+  document.getElementById('modal-mtn').classList.toggle('active', type === 'mtn');
+  document.getElementById('modal-airtel').classList.toggle('active', type === 'airtel');
+}
+
+function confirmPayout() {
+  const momoLabel = selectedModalMomo === 'mtn' ? 'MTN MoMo ⭐' : 'Airtel Money 🔴';
+
+  // ── EN PRODUCTION : appelez votre endpoint Supabase Edge Function ──
+  // fetch('/api/payout', {
+  //   method: 'POST',
+  //   body: JSON.stringify({ vendeuse_id: currentUser.id, montant: caJour, operateur: selectedModalMomo })
+  // })
+
+  // Simuler un délai de traitement
+  const btn = document.querySelector('.modal-confirm-btn');
+  btn.textContent = '⏳ Traitement…';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('modal-content-default').style.display = 'none';
+    document.getElementById('modal-content-success').style.display = 'block';
+    document.getElementById('success-amount').textContent = caJour.toLocaleString('fr-FR');
+    document.getElementById('success-momo').textContent = momoLabel;
+
+    // Sauvegarder dans localStorage (en prod : insert dans table 'paiements')
+    const paiements = JSON.parse(localStorage.getItem('maboke_paiements') || '[]');
+    paiements.push({
+      date: new Date().toISOString(),
+      montant: caJour,
+      operateur: selectedModalMomo,
+      statut: 'initié',
+    });
+    localStorage.setItem('maboke_paiements', JSON.stringify(paiements));
+
+    btn.textContent = '✅ Confirmer le virement';
+    btn.disabled = false;
+  }, 1800);
+}
+
+// Fermer modal en cliquant dehors
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGOUT (compatible avec le code existant)
+// ═══════════════════════════════════════════════════════════════
+function logout() {
+  localStorage.removeItem('maboke_session');
+  // window.location.href = 'index.html'; // En production
+  showToast('👋 Déconnexion réussie');
+  setTimeout(() => { alert('Redirection vers index.html (page de connexion Maboke)'); }, 1500);
+}
+
+// START
+init();
+</script>
+</body>
+</html>
