@@ -2,590 +2,871 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Espace vendeuse - Maboke</title>
+  <title>Espace vendeuse — Maboke</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #059669;
-      --secondary: #f97316;
-      --bg: #020617;
-      --card: #0b1220;
-      --border: rgba(148, 163, 184, 0.5);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
+      --green:   #16a34a;
+      --green-l: #22c55e;
+      --orange:  #ea580c;
+      --orange-l:#f97316;
+      --gold:    #facc15;
+      --bg:      #060a0f;
+      --card:    #0d1520;
+      --border:  rgba(255,255,255,0.08);
+      --text:    #f1f5f9;
+      --muted:   #64748b;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.25), transparent 60%),
-                  var(--bg);
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
       color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.15; animation: drift 14s ease-in-out infinite alternate; }
+    .bg-blob:nth-child(1) { width:520px; height:520px; background:#16a34a; top:-120px; left:-100px; }
+    .bg-blob:nth-child(2) { width:400px; height:400px; background:#ea580c; bottom:-80px; right:-80px; animation-delay:-5s; }
+    .bg-blob:nth-child(3) { width:300px; height:300px; background:#facc15; top:40%; left:55%; animation-delay:-9s; }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    #app {
+      position: relative; z-index: 1;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 24px 16px;
     }
 
-    .app {
-      width: 100%;
-      max-width: 480px;
-      background: radial-gradient(circle at top, rgba(15, 118, 110, 0.22), #020617);
-      border-radius: 24px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
-      padding: 16px 16px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .dash-container {
+      width: 100%; max-width: 480px;
+      display: flex; flex-direction: column; gap: 14px;
+      animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
+    /* ─── HEADER ──────────────────────────────────── */
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 20px;
+      display: flex; align-items: center; gap: 14px;
     }
-
-    .title {
-      font-size: 1.05rem;
-      font-weight: 600;
+    .avatar {
+      width: 52px; height: 52px; border-radius: 16px;
+      background: linear-gradient(135deg, #ea580c, #facc15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+      border: 2px solid rgba(234,88,12,0.4);
     }
-
-    .subtitle {
-      font-size: 0.8rem;
-      color: var(--muted);
+    .header-info { flex: 1; }
+    .header-name { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
+    .header-badge {
+      display: inline-block; margin-top: 3px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      background: rgba(234,88,12,0.2); color: #fb923c; border: 1px solid rgba(234,88,12,0.3);
     }
+    .logout-btn {
+      padding: 7px 14px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted); font-size: 0.75rem; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.18s, color 0.18s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
 
-    .badge {
-      border-radius: 999px;
-      padding: 4px 9px;
-      border: 1px solid rgba(34, 197, 94, 0.6);
-      font-size: 0.7rem;
-      color: #bbf7d0;
-      background: rgba(15, 118, 110, 0.25);
+    /* ─── SECTION CARDS ──────────────────────────── */
+    .section-title-main {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); padding: 0 2px;
     }
 
     .section-card {
-      background: rgba(15, 23, 42, 0.96);
-      border-radius: 16px;
-      padding: 12px 12px 10px;
+      background: var(--card);
       border: 1px solid var(--border);
+      border-radius: 20px; padding: 18px;
     }
 
     .section-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 6px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .section-desc {
+      font-size: 0.75rem; color: var(--muted); margin-bottom: 12px;
     }
 
-    .section-description {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .field-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .field {
-      flex: 1;
-      margin-bottom: 6px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-
-    .input {
-      width: 100%;
-      border-radius: 10px;
+    /* ─── VOICE / TEXT TOGGLE ────────────────────── */
+    .mode-toggle {
+      display: flex; background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.95);
-      padding: 7px 9px;
-      font-size: 0.8rem;
-      color: var(--text);
-      outline: none;
+      border-radius: 12px; padding: 3px;
+      margin-bottom: 14px; gap: 3px;
+    }
+    .mode-btn {
+      flex: 1; padding: 8px; border-radius: 9px;
+      border: none; background: none;
+      color: var(--muted); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: background 0.18s, color 0.18s;
+      font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .mode-btn.active { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    /* ─── VOICE RECORDER ─────────────────────────── */
+    .voice-zone { display: none; text-align: center; padding: 16px 0; }
+    .voice-zone.show { display: block; }
+
+    .mic-btn {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 3px solid rgba(234,88,12,0.4);
+      background: rgba(234,88,12,0.1);
+      color: #fb923c; font-size: 2rem;
+      cursor: pointer; margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .mic-btn:hover { background: rgba(234,88,12,0.2); transform: scale(1.05); }
+    .mic-btn.recording {
+      border-color: #ef4444;
+      background: rgba(239,68,68,0.2);
+      animation: pulse-mic 1.2s infinite;
+    }
+    @keyframes pulse-mic {
+      0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+    }
+    .mic-btn.recording::after {
+      content: ''; position: absolute;
+      width: 20px; height: 20px; border-radius: 4px;
+      background: #ef4444;
+    }
+    .mic-btn.recording .mic-icon { display: none; }
+
+    .voice-status {
+      font-size: 0.78rem; color: var(--muted); min-height: 1.2em;
+      margin-bottom: 6px;
+    }
+    .voice-status.ok { color: #4ade80; }
+    .voice-status.error { color: #f87171; }
+
+    .voice-timer {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700;
+      color: #fb923c; margin-bottom: 10px;
     }
 
-    .input::placeholder {
-      color: rgba(148, 163, 184, 0.9);
+    .transcript-box {
+      display: none; margin-top: 10px;
+      padding: 12px 14px; border-radius: 12px;
+      background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.25);
+      font-size: 0.82rem; color: var(--text); text-align: left;
+      line-height: 1.5;
+    }
+    .transcript-box.show { display: block; }
+    .transcript-label {
+      font-size: 0.68rem; font-weight: 700; color: #4ade80;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 4px;
     }
 
-    .btn {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
+    /* ─── TEXT INPUT ZONE ─────────────────────────── */
+    .text-zone { display: none; }
+    .text-zone.show { display: block; }
 
+    /* ─── INPUTS ─────────────────────────────────── */
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block; font-size: 0.72rem; color: var(--muted);
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .field-row { display: flex; gap: 8px; }
+    .input {
+      width: 100%; padding: 9px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text);
+      font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.18s, background 0.18s;
+    }
+    .input:focus {
+      border-color: rgba(234,88,12,0.5);
+      background: rgba(234,88,12,0.04);
+    }
+    .input::placeholder { color: rgba(100,116,139,0.7); }
+
+    /* ─── BUTTONS ─────────────────────────────────── */
     .btn-primary {
-      width: 100%;
-      background: linear-gradient(135deg, var(--secondary), #fed7aa);
-      color: #1c1917;
-      box-shadow: 0 16px 30px rgba(249, 115, 22, 0.45);
-      margin-top: 4px;
+      width: 100%; padding: 12px;
+      border-radius: 14px; border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem; font-weight: 700;
+      letter-spacing: 0.04em; cursor: pointer;
+      background: linear-gradient(135deg, var(--orange), var(--orange-l));
+      color: #fff;
+      box-shadow: 0 8px 28px rgba(234,88,12,0.35);
+      transition: transform 0.15s, filter 0.15s;
+      position: relative; overflow: hidden;
+      margin-top: 6px;
     }
+    .btn-primary::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.12), transparent);
+    }
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
 
     .btn-outline {
-      background: transparent;
+      padding: 8px 16px; border-radius: 10px;
       border: 1px solid var(--border);
-      color: var(--text);
-      padding-inline: 10px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.18s;
     }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); }
 
     .status-text {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 4px;
-      min-height: 1em;
+      font-size: 0.72rem; color: var(--muted); margin-top: 6px; min-height: 1em;
     }
+    .status-text.ok { color: #4ade80; }
+    .status-text.error { color: #f87171; }
 
-    .status-text.ok {
-      color: #22c55e;
-    }
-
-    .status-text.error {
-      color: #f97316;
-    }
-
+    /* ─── DISH LIST ───────────────────────────────── */
     .dish-list {
-      margin-top: 6px;
-      max-height: 260px;
-      overflow-y: auto;
-      padding-right: 2px;
+      margin-top: 8px; max-height: 320px;
+      overflow-y: auto; padding-right: 2px;
       scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+      scrollbar-color: rgba(148,163,184,0.5) transparent;
     }
-
-    .dish-list::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .dish-list::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.7);
-      border-radius: 999px;
-    }
+    .dish-list::-webkit-scrollbar { width: 4px; }
+    .dish-list::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.7); border-radius: 999px; }
 
     .dish-item {
-      border-radius: 12px;
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      background: rgba(15, 23, 42, 0.96);
-      padding: 7px 8px;
-      font-size: 0.78rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 6px;
+      border-radius: 14px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      padding: 12px; margin-bottom: 8px;
+      transition: border-color 0.2s;
     }
-
+    .dish-item:hover { border-color: rgba(234,88,12,0.3); }
     .dish-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
-
-    .dish-name {
-      font-weight: 600;
-    }
-
+    .dish-name { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; }
     .dish-badge {
-      border-radius: 999px;
-      padding: 2px 7px;
-      font-size: 0.7rem;
+      padding: 2px 8px; border-radius: 6px;
+      font-size: 0.65rem; font-weight: 700;
     }
+    .badge-ok  { background: rgba(22,163,74,0.14); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .badge-low { background: rgba(250,204,21,0.14); color: #fde047; border: 1px solid rgba(250,204,21,0.4); }
+    .badge-out { background: rgba(239,68,68,0.14);  color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
 
-    .badge-ok {
-      background: rgba(22, 163, 74, 0.16);
-      color: #bbf7d0;
-      border: 1px solid rgba(34, 197, 94, 0.6);
-    }
-
-    .badge-low {
-      background: rgba(234, 179, 8, 0.18);
-      color: #fef9c3;
-      border: 1px solid rgba(250, 204, 21, 0.7);
-    }
-
-    .badge-out {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fecaca;
-      border: 1px solid rgba(248, 113, 113, 0.8);
-    }
-
-    .dish-desc {
-      font-size: 0.76rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
+    .dish-desc { font-size: 0.74rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
     .dish-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      color: var(--muted);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; margin-top: 6px;
     }
+    .dish-price { font-family: 'Syne', sans-serif; font-weight: 700; color: #4ade80; }
+    .dish-stock { color: var(--muted); }
 
-    .dish-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 4px;
-      margin-top: 2px;
-    }
-
+    .dish-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
     .small-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(55, 65, 81, 0.9);
-      background: rgba(15, 23, 42, 0.95);
-      color: var(--text);
-      font-size: 0.7rem;
-      padding: 3px 7px;
-      cursor: pointer;
+      padding: 5px 10px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text); font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+      font-family: 'DM Sans', sans-serif;
     }
+    .small-btn.main { border-color: rgba(22,163,74,0.5); color: #4ade80; }
+    .small-btn.main:hover { background: rgba(22,163,74,0.1); }
+    .small-btn.danger { border-color: rgba(239,68,68,0.5); color: #f87171; }
+    .small-btn.danger:hover { background: rgba(239,68,68,0.1); }
 
-    .small-btn.main {
-      border-color: rgba(34, 197, 94, 0.8);
-      color: #bbf7d0;
+    .empty-state {
+      text-align: center; padding: 28px 16px;
+      color: var(--muted); font-size: 0.8rem;
     }
+    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
 
-    .small-btn.danger {
-      border-color: rgba(248, 113, 113, 0.9);
-      color: #fecaca;
+    /* ─── ACTIONS RAPIDES ─────────────────────────── */
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .quick-action {
+      padding: 16px 14px; border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer; text-align: center;
+      transition: transform 0.18s, border-color 0.18s;
+      text-decoration: none;
     }
+    .quick-action:hover { transform: translateY(-3px); border-color: rgba(234,88,12,0.4); background: rgba(234,88,12,0.05); }
+    .quick-action-icon { font-size: 1.5rem; margin-bottom: 5px; }
+    .quick-action-label { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text); }
+    .quick-action-desc { font-size: 0.66rem; color: var(--muted); margin-top: 2px; }
 
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
+    /* ─── TOAST ───────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--card); border: 1px solid rgba(22,163,74,0.4);
+      border-radius: 14px; padding: 12px 20px;
+      font-size: 0.8rem; color: #86efac; z-index: 200;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+      opacity: 0; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 480px) { #app { padding: 14px 10px; } }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div>
-        <div class="title">Espace vendeuse</div>
-        <p class="subtitle">Ajoutez vos plats et gérez votre stock.</p>
-      </div>
-      <span class="badge">Maboke Manager</span>
-    </header>
 
-    <section class="section-card">
-      <h2 class="section-title">Informations vendeuse</h2>
-      <p class="section-description">
-        Saisissez votre nom et votre localisation. Ces informations seront liées à vos plats.
-      </p>
-      <div class="field-row">
-        <div class="field">
-          <label for="vendor-name">Nom de la vendeuse</label>
-          <input id="vendor-name" class="input" type="text" placeholder="Ex : Maman Rose" />
+<div class="bg-canvas">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
+
+<div id="app">
+  <div class="dash-container">
+
+    <!-- HEADER -->
+    <div class="header-card">
+      <div class="avatar" id="dash-avatar">👩‍🍳</div>
+      <div class="header-info">
+        <div class="header-name" id="dash-name">Vendeuse</div>
+        <span class="header-badge">👩‍🍳 Vendeuse</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <!-- ═══ AJOUTER UN PLAT ═══ -->
+    <p class="section-title-main">🍽️ Ajouter un plat</p>
+    <div class="section-card">
+      <div class="section-title">Nouveau plat du jour</div>
+      <div class="section-desc">Dictez votre plat à la voix ou écrivez-le manuellement</div>
+
+      <!-- Toggle voix/texte -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-voice" onclick="setInputMode('voice')">
+          🎙️ Dicter (voix)
+        </button>
+        <button class="mode-btn" id="mode-text" onclick="setInputMode('text')">
+          ✏️ Écrire (texte)
+        </button>
+      </div>
+
+      <!-- ZONE ENREGISTREMENT VOCAL -->
+      <div class="voice-zone show" id="voice-zone">
+        <div class="voice-timer" id="voice-timer">00:00</div>
+        <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">
+          <span class="mic-icon">🎙️</span>
+        </button>
+        <div class="voice-status" id="voice-status">
+          Appuyez sur le micro et décrivez votre plat
         </div>
-        <div class="field">
-          <label for="vendor-location">Localisation</label>
-          <input id="vendor-location" class="input" type="text" placeholder="Ex : Bacongo, Rond-point" />
+        <div class="transcript-box" id="transcript-box">
+          <div class="transcript-label">📝 Transcription</div>
+          <div id="transcript-text"></div>
         </div>
       </div>
-      <button id="vendor-save" class="btn btn-outline" type="button">
-        Utiliser ce profil
+
+      <!-- ZONE SAISIE TEXTE (champs manuels) -->
+      <div class="text-zone" id="text-zone">
+        <div class="field">
+          <label>Nom du plat *</label>
+          <input class="input" id="dish-name" type="text" placeholder="Ex : Maboke de poisson" />
+        </div>
+        <div class="field">
+          <label>Description du plat</label>
+          <input class="input" id="dish-description" type="text" placeholder="Ex : Poisson frais, feuilles de bananier, piment…" />
+        </div>
+      </div>
+
+      <!-- Champs communs (prix + stock) -->
+      <div class="field-row" style="margin-top:8px;">
+        <div class="field" style="flex:1;">
+          <label>💰 Prix (FCFA) *</label>
+          <input class="input" id="dish-price" type="number" min="0" step="100" placeholder="3500" />
+        </div>
+        <div class="field" style="flex:1;">
+          <label>📦 Stock (portions) *</label>
+          <input class="input" id="dish-stock" type="number" min="0" step="1" placeholder="10" />
+        </div>
+      </div>
+
+      <button class="btn-primary" id="dish-save" onclick="saveDish()">
+        Enregistrer le plat 🍲
       </button>
-      <div id="vendor-status" class="status-text"></div>
-    </section>
+      <div class="status-text" id="dish-status"></div>
+    </div>
 
-    <section class="section-card">
-      <h2 class="section-title">Ajouter / mettre à jour un plat</h2>
-      <p class="section-description">
-        Ajoutez un plat avec son prix et le nombre de portions préparées pour aujourd'hui.
-      </p>
-      <div class="field">
-        <label for="dish-name">Nom du plat</label>
-        <input id="dish-name" class="input" type="text" placeholder="Ex : Maboke de poisson" />
-      </div>
-      <div class="field">
-        <label for="dish-description">Description du plat</label>
-        <input
-          id="dish-description"
-          class="input"
-          type="text"
-          placeholder="Ex : Poisson frais, légumes, sauce tomate, piment doux…"
-        />
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="dish-price">Prix (FCFA)</label>
-          <input id="dish-price" class="input" type="number" min="0" step="100" placeholder="7000" />
-        </div>
-        <div class="field">
-          <label for="dish-stock">Stock initial (portions)</label>
-          <input id="dish-stock" class="input" type="number" min="0" step="1" placeholder="10" />
+    <!-- ═══ PLATS DU JOUR ═══ -->
+    <p class="section-title-main">📦 Vos plats du jour</p>
+    <div class="section-card">
+      <div class="section-title">Menu en ligne</div>
+      <div class="section-desc">Le stock se met à jour automatiquement quand un client commande</div>
+      <div class="dish-list" id="dish-list">
+        <div class="empty-state">
+          <div class="empty-icon">🍳</div>
+          Ajoutez votre premier plat !
         </div>
       </div>
-      <button id="dish-save" class="btn btn-primary" type="button">
-        Enregistrer le plat
-      </button>
-      <div id="dish-status" class="status-text"></div>
-    </section>
+    </div>
 
-    <section class="section-card">
-      <h2 class="section-title">Vos plats du jour</h2>
-      <p class="section-description">
-        Mettez à jour le stock en temps réel : chaque vente décrémente automatiquement.
-      </p>
-      <div id="dish-list" class="dish-list"></div>
-    </section>
+    <!-- ═══ ACTIONS RAPIDES ═══ -->
+    <p class="section-title-main">⚡ Actions rapides</p>
+    <div class="quick-actions">
+      <div class="quick-action" onclick="window.location.href='dashboard.html'">
+        <div class="quick-action-icon">💰</div>
+        <div class="quick-action-label">Mes revenus</div>
+        <div class="quick-action-desc">Voir le dashboard</div>
+      </div>
+      <div class="quick-action" onclick="shareShop()">
+        <div class="quick-action-icon">📱</div>
+        <div class="quick-action-label">Partager</div>
+        <div class="quick-action-desc">Ma boutique</div>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // TODO: remplacez la clé ANON par celle de votre projet Supabase
-    const SUPABASE_URL = 'https://rxkzbpyaqwziandloaoz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+<div class="toast" id="toast"></div>
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://rxkzbpyaqwziandloaoz.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4a3picHlhcXd6aWFuZGxvYW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzc0NzIsImV4cCI6MjA4ODU1MzQ3Mn0.0N1OcKWyRRZ8aMasqN7BWtagisxNkwLyOKAEjmCiWpI';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const vendorNameInput = document.getElementById('vendor-name');
-    const vendorLocationInput = document.getElementById('vendor-location');
-    const vendorSaveBtn = document.getElementById('vendor-save');
-    const vendorStatus = document.getElementById('vendor-status');
+// API base URL (backend)
+const API = window.location.origin;
 
-    const dishNameInput = document.getElementById('dish-name');
-    const dishDescriptionInput = document.getElementById('dish-description');
-    const dishPriceInput = document.getElementById('dish-price');
-    const dishStockInput = document.getElementById('dish-stock');
-    const dishSaveBtn = document.getElementById('dish-save');
-    const dishStatus = document.getElementById('dish-status');
-    const dishList = document.getElementById('dish-list');
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentVendor  = null;
+let sessionUser    = null;
+let inputMode      = 'voice'; // 'voice' or 'text'
+let mediaRecorder  = null;
+let audioChunks    = [];
+let isRecording    = false;
+let recordingTimer = null;
+let recordingSeconds = 0;
 
-    let currentVendor = null; // { id, name, location }
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  const raw = localStorage.getItem('maboke_session');
+  if (!raw) { window.location.href = 'index.html'; return; }
 
-    function setStatus(el, msg, type) {
-      el.textContent = msg || '';
-      el.classList.remove('ok', 'error');
-      if (type) {
-        el.classList.add(type);
-      }
+  try { sessionUser = JSON.parse(raw); } catch(e) {
+    window.location.href = 'index.html'; return;
+  }
+
+  if (!sessionUser || sessionUser.role !== 'vendeuse') {
+    window.location.href = 'index.html'; return;
+  }
+
+  document.getElementById('dash-name').textContent = sessionUser.name || 'Vendeuse';
+
+  // Charger le profil vendeur
+  await ensureVendorProfile();
+}
+
+async function ensureVendorProfile() {
+  const name = sessionUser.name || '';
+  const location = sessionUser.location || sessionUser.address || '';
+
+  if (!name) return;
+
+  try {
+    // Essayer via l'API backend d'abord
+    const res = await fetch(`${API}/api/vendors/profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, location }),
+    });
+    const data = await res.json();
+    if (data.vendor) {
+      currentVendor = data.vendor;
+      await loadDishes();
+      return;
+    }
+  } catch(e) {
+    console.warn('API non disponible, fallback Supabase direct');
+  }
+
+  // Fallback: Supabase direct
+  try {
+    const { data, error } = await sb
+      .from('vendors')
+      .upsert({ name, location }, { onConflict: 'name,location' })
+      .select().limit(1);
+    if (!error && data?.length) {
+      currentVendor = data[0];
+      await loadDishes();
+    }
+  } catch(e) {
+    console.error('Vendor profile error:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INPUT MODE (VOIX / TEXTE)
+// ═══════════════════════════════════════════════════════════════
+function setInputMode(mode) {
+  inputMode = mode;
+  document.getElementById('mode-voice').classList.toggle('active', mode === 'voice');
+  document.getElementById('mode-text').classList.toggle('active', mode === 'text');
+  document.getElementById('voice-zone').classList.toggle('show', mode === 'voice');
+  document.getElementById('text-zone').classList.toggle('show', mode === 'text');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENREGISTREMENT VOCAL
+// ═══════════════════════════════════════════════════════════════
+async function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      await transcribeAudio(audioBlob);
+    };
+
+    mediaRecorder.start();
+    isRecording = true;
+    recordingSeconds = 0;
+
+    const btn = document.getElementById('mic-btn');
+    btn.classList.add('recording');
+    setVoiceStatus('🔴 Enregistrement en cours… Décrivez votre plat', '');
+
+    // Timer
+    recordingTimer = setInterval(() => {
+      recordingSeconds++;
+      const min = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+      const sec = String(recordingSeconds % 60).padStart(2, '0');
+      document.getElementById('voice-timer').textContent = `${min}:${sec}`;
+    }, 1000);
+
+  } catch(e) {
+    setVoiceStatus('❌ Impossible d\'accéder au microphone. Vérifiez les autorisations.', 'error');
+    console.error('Mic error:', e);
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+  clearInterval(recordingTimer);
+
+  const btn = document.getElementById('mic-btn');
+  btn.classList.remove('recording');
+  setVoiceStatus('⏳ Transcription en cours…', '');
+}
+
+async function transcribeAudio(audioBlob) {
+  try {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+
+    const res = await fetch(`${API}/api/whisper/transcribe`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      setVoiceStatus('❌ ' + data.error, 'error');
+      return;
     }
 
-    function computeStatusBadge(dish) {
+    // Afficher la transcription
+    document.getElementById('transcript-text').textContent = data.text;
+    document.getElementById('transcript-box').classList.add('show');
+
+    // Remplir les champs automatiquement
+    if (data.parsed) {
+      document.getElementById('dish-name').value = data.parsed.name || '';
+      document.getElementById('dish-description').value = data.parsed.description || '';
+      if (data.parsed.price > 0) document.getElementById('dish-price').value = data.parsed.price;
+      if (data.parsed.stock > 0) document.getElementById('dish-stock').value = data.parsed.stock;
+    }
+
+    const simLabel = data.simulated ? ' (simulation)' : '';
+    setVoiceStatus(`✅ Transcription réussie !${simLabel} Vérifiez les champs ci-dessous.`, 'ok');
+    showToast('🎤 Plat détecté ! Vérifiez et enregistrez.');
+
+  } catch(e) {
+    console.error('Transcription error:', e);
+    // Fallback simulation locale
+    simulateTranscription();
+  }
+}
+
+function simulateTranscription() {
+  const demos = [
+    { name: 'Maboke de poisson fumé', desc: 'Poisson fumé cuit dans les feuilles de bananier, piment doux', price: 3500, stock: 10 },
+    { name: 'Saka-saka au poulet', desc: 'Feuilles de manioc pilées avec poulet, huile de palme', price: 2500, stock: 8 },
+    { name: 'Poulet braisé + Plantain', desc: 'Poulet mariné grillé au charbon, banane plantain frite', price: 4000, stock: 5 },
+  ];
+  const demo = demos[Math.floor(Math.random() * demos.length)];
+
+  document.getElementById('transcript-text').textContent = `${demo.name}, ${demo.price} francs, ${demo.stock} portions`;
+  document.getElementById('transcript-box').classList.add('show');
+  document.getElementById('dish-name').value = demo.name;
+  document.getElementById('dish-description').value = demo.desc;
+  document.getElementById('dish-price').value = demo.price;
+  document.getElementById('dish-stock').value = demo.stock;
+
+  setVoiceStatus('✅ Transcription simulée ! Vérifiez les champs et enregistrez.', 'ok');
+  showToast('🎤 Plat détecté (mode démo)');
+}
+
+function setVoiceStatus(msg, type) {
+  const el = document.getElementById('voice-status');
+  el.textContent = msg;
+  el.className = 'voice-status' + (type ? ' ' + type : '');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENREGISTRER UN PLAT
+// ═══════════════════════════════════════════════════════════════
+async function saveDish() {
+  if (!currentVendor) {
+    await ensureVendorProfile();
+    if (!currentVendor) {
+      setDishStatus('Profil vendeuse non configuré.', 'error');
+      return;
+    }
+  }
+
+  const name  = document.getElementById('dish-name').value.trim();
+  const desc  = document.getElementById('dish-description').value.trim();
+  const price = Number(document.getElementById('dish-price').value || 0);
+  const stock = Number(document.getElementById('dish-stock').value || 0);
+
+  if (!name || price <= 0) {
+    setDishStatus('⚠️ Nom du plat et prix sont obligatoires.', 'error');
+    return;
+  }
+
+  setDishStatus('Enregistrement…', '');
+
+  try {
+    // Essayer via l'API backend
+    const res = await fetch(`${API}/api/vendors/dishes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vendor_id: currentVendor.id,
+        name, description: desc, price,
+        initial_stock: stock,
+      }),
+    });
+    const data = await res.json();
+    if (data.dish) {
+      setDishStatus('✅ Plat enregistré !', 'ok');
+      clearDishForm();
+      await loadDishes();
+      showToast('🍲 Plat ajouté au menu !');
+      return;
+    }
+  } catch(e) {
+    console.warn('API non disponible, fallback Supabase');
+  }
+
+  // Fallback Supabase direct
+  try {
+    const status = stock <= 0 ? 'rupture' : 'disponible';
+    const { error } = await sb.from('dishes').upsert(
+      { vendor_id: currentVendor.id, name, price, description: desc || null, initial_stock: stock, current_stock: stock, status },
+      { onConflict: 'vendor_id,name' }
+    );
+    if (error) throw error;
+    setDishStatus('✅ Plat enregistré !', 'ok');
+    clearDishForm();
+    await loadDishes();
+    showToast('🍲 Plat ajouté au menu !');
+  } catch(err) {
+    console.error(err);
+    setDishStatus('❌ Impossible d\'enregistrer le plat.', 'error');
+  }
+}
+
+function clearDishForm() {
+  document.getElementById('dish-name').value = '';
+  document.getElementById('dish-description').value = '';
+  document.getElementById('dish-price').value = '';
+  document.getElementById('dish-stock').value = '';
+  document.getElementById('transcript-box').classList.remove('show');
+  document.getElementById('voice-timer').textContent = '00:00';
+}
+
+function setDishStatus(msg, type) {
+  const el = document.getElementById('dish-status');
+  el.textContent = msg;
+  el.className = 'status-text' + (type ? ' ' + type : '');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHARGER / AFFICHER LES PLATS
+// ═══════════════════════════════════════════════════════════════
+async function loadDishes() {
+  const list = document.getElementById('dish-list');
+  if (!currentVendor) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🍳</div>Ajoutez votre premier plat !</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="status-text">Chargement…</div>';
+
+  try {
+    const { data, error } = await sb
+      .from('dishes')
+      .select('*')
+      .eq('vendor_id', currentVendor.id)
+      .order('name', { ascending: true });
+
+    if (error) throw error;
+
+    if (!data.length) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">🍳</div>Aucun plat enregistré. Ajoutez-en un ci-dessus !</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.forEach(dish => {
       const stock = dish.current_stock ?? 0;
-      if (stock <= 0 || dish.status === 'rupture') {
-        return { label: 'Rupture de stock', className: 'badge-out' };
-      }
-      if (stock <= 2 || dish.status === 'bientot_en_rupture') {
-        return { label: 'Bientôt en rupture', className: 'badge-low' };
-      }
-      return { label: 'Disponible', className: 'badge-ok' };
-    }
+      const badgeCls = stock <= 0 ? 'badge-out' : stock <= 2 ? 'badge-low' : 'badge-ok';
+      const badgeTxt = stock <= 0 ? 'Épuisé' : stock <= 2 ? 'Bientôt épuisé' : 'Disponible';
 
-    async function ensureVendorProfile() {
-      const name = vendorNameInput.value.trim();
-      const location = vendorLocationInput.value.trim();
-      if (!name || !location) {
-        setStatus(vendorStatus, 'Veuillez saisir votre nom et votre localisation.', 'error');
-        return null;
-      }
-      try {
-        setStatus(vendorStatus, 'Enregistrement du profil…');
-
-        const { data, error } = await supabaseClient
-          .from('vendors')
-          .upsert(
-            { name, location },
-            { onConflict: 'name,location' }
-          )
-          .select()
-          .limit(1);
-
-        if (error) throw error;
-        const vendor = data[0];
-        currentVendor = vendor;
-        setStatus(vendorStatus, `Profil chargé : ${vendor.name} (${vendor.location})`, 'ok');
-        await loadDishes();
-        return vendor;
-      } catch (err) {
-        console.error(err);
-        setStatus(vendorStatus, "Impossible d'enregistrer le profil vendeuse.", 'error');
-        return null;
-      }
-    }
-
-    async function loadDishes() {
-      if (!currentVendor) {
-        dishList.innerHTML = '<p class="status-text">Choisissez d’abord un profil vendeuse.</p>';
-        return;
-      }
-      try {
-        dishList.innerHTML = '<p class="status-text">Chargement des plats…</p>';
-        const { data, error } = await supabaseClient
-          .from('dishes')
-          .select('*')
-          .eq('vendor_id', currentVendor.id)
-          .order('name', { ascending: true });
-
-        if (error) throw error;
-
-        if (!data.length) {
-          dishList.innerHTML = '<p class="status-text">Aucun plat enregistré pour le moment.</p>';
-          return;
-        }
-
-        dishList.innerHTML = '';
-        data.forEach((dish) => {
-          const badge = computeStatusBadge(dish);
-          const el = document.createElement('div');
-          el.className = 'dish-item';
-          el.innerHTML = `
-            <div class="dish-header">
-              <span class="dish-name">${dish.name}</span>
-              <span class="dish-badge ${badge.className}">${badge.label}</span>
-            </div>
-            ${dish.description ? `<div class="dish-desc">${dish.description}</div>` : ''}
-            <div class="dish-meta">
-              <span>Prix : ${dish.price.toLocaleString('fr-FR')} FCFA</span>
-              <span>Stock : ${dish.current_stock ?? 0} / ${dish.initial_stock ?? 0}</span>
-            </div>
-            <div class="dish-actions">
-              <button class="small-btn main" data-action="sell" data-id="${dish.id}">-1 vendu</button>
-              <button class="small-btn" data-action="add" data-id="${dish.id}">+1 stock</button>
-              <button class="small-btn danger" data-action="out" data-id="${dish.id}">Rupture</button>
-            </div>
-          `;
-          dishList.appendChild(el);
-        });
-      } catch (err) {
-        console.error(err);
-        dishList.innerHTML = '<p class="status-text error">Erreur lors du chargement des plats.</p>';
-      }
-    }
-
-    async function adjustDishStock(dishId, action) {
-      try {
-        const { data: existingRows, error: fetchError } = await supabaseClient
-          .from('dishes')
-          .select('*')
-          .eq('id', dishId)
-          .limit(1);
-        if (fetchError) throw fetchError;
-        const dish = existingRows[0];
-        if (!dish) return;
-
-        let newStock = dish.current_stock ?? 0;
-        let newStatus = dish.status || 'disponible';
-
-        if (action === 'sell') {
-          newStock = Math.max(0, newStock - 1);
-        } else if (action === 'add') {
-          newStock += 1;
-        } else if (action === 'out') {
-          newStock = 0;
-          newStatus = 'rupture';
-        }
-
-        if (newStock <= 0) {
-          newStatus = 'rupture';
-        } else if (newStock <= 2 && newStatus !== 'rupture') {
-          newStatus = 'bientot_en_rupture';
-        } else if (newStock > 2 && newStatus !== 'rupture') {
-          newStatus = 'disponible';
-        }
-
-        const { error: updateError } = await supabaseClient
-          .from('dishes')
-          .update({ current_stock: newStock, status: newStatus })
-          .eq('id', dishId);
-        if (updateError) throw updateError;
-
-        await loadDishes();
-      } catch (err) {
-        console.error(err);
-        setStatus(dishStatus, 'Erreur lors de la mise à jour du stock.', 'error');
-      }
-    }
-
-    vendorSaveBtn.addEventListener('click', ensureVendorProfile);
-
-    dishSaveBtn.addEventListener('click', async () => {
-      if (!currentVendor) {
-        const profile = await ensureVendorProfile();
-        if (!profile) return;
-      }
-      const name = dishNameInput.value.trim();
-      const price = Number(dishPriceInput.value || 0);
-      const description = dishDescriptionInput.value.trim();
-      const stock = Number(dishStockInput.value || 0);
-
-      if (!name || !price || price <= 0) {
-        setStatus(dishStatus, 'Nom du plat et prix sont obligatoires.', 'error');
-        return;
-      }
-
-      try {
-        setStatus(dishStatus, 'Enregistrement du plat…');
-
-        const initialStock = stock >= 0 ? stock : 0;
-        const currentStock = initialStock;
-        const status = currentStock <= 0 ? 'rupture' : 'disponible';
-
-        const { error } = await supabaseClient
-          .from('dishes')
-          .upsert(
-            {
-              vendor_id: currentVendor.id,
-              name,
-              price,
-              description: description || null,
-              initial_stock: initialStock,
-              current_stock: currentStock,
-              status
-            },
-            { onConflict: 'vendor_id,name' }
-          );
-
-        if (error) throw error;
-
-        setStatus(dishStatus, 'Plat enregistré avec succès.', 'ok');
-        dishNameInput.value = '';
-        dishDescriptionInput.value = '';
-        dishPriceInput.value = '';
-        dishStockInput.value = '';
-        await loadDishes();
-      } catch (err) {
-        console.error(err);
-        setStatus(dishStatus, "Impossible d'enregistrer le plat.", 'error');
-      }
+      const el = document.createElement('div');
+      el.className = 'dish-item';
+      el.innerHTML = `
+        <div class="dish-header">
+          <span class="dish-name">🍽️ ${dish.name}</span>
+          <span class="dish-badge ${badgeCls}">${badgeTxt}</span>
+        </div>
+        ${dish.description ? `<div class="dish-desc">${dish.description}</div>` : ''}
+        <div class="dish-meta">
+          <span class="dish-price">${dish.price.toLocaleString('fr-FR')} FCFA</span>
+          <span class="dish-stock">Stock : ${stock} / ${dish.initial_stock ?? 0}</span>
+        </div>
+        <div class="dish-actions">
+          <button class="small-btn main" onclick="adjustStock('${dish.id}','sell')">-1 vendu</button>
+          <button class="small-btn" onclick="adjustStock('${dish.id}','add')">+1 stock</button>
+          <button class="small-btn danger" onclick="adjustStock('${dish.id}','out')">Rupture</button>
+        </div>`;
+      list.appendChild(el);
     });
+  } catch(err) {
+    console.error(err);
+    list.innerHTML = '<div class="status-text error">Erreur de chargement.</div>';
+  }
+}
 
-    dishList.addEventListener('click', (event) => {
-      const btn = event.target.closest('button[data-action]');
-      if (!btn) return;
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-      if (!id || !action) return;
-      adjustDishStock(id, action);
+// ═══════════════════════════════════════════════════════════════
+// GESTION DU STOCK
+// ═══════════════════════════════════════════════════════════════
+async function adjustStock(dishId, action) {
+  try {
+    // Essayer via API backend
+    await fetch(`${API}/api/vendors/dishes/${dishId}/stock`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
     });
-  </script>
+  } catch(e) {
+    // Fallback: Supabase direct
+    const { data } = await sb.from('dishes').select('*').eq('id', dishId).limit(1);
+    if (!data?.length) return;
+    const dish = data[0];
+    let newStock = dish.current_stock ?? 0;
+    let newStatus = dish.status || 'disponible';
+
+    if (action === 'sell') newStock = Math.max(0, newStock - 1);
+    else if (action === 'add') newStock += 1;
+    else if (action === 'out') { newStock = 0; newStatus = 'rupture'; }
+
+    if (newStock <= 0) newStatus = 'rupture';
+    else if (newStock <= 2) newStatus = 'bientot_en_rupture';
+    else newStatus = 'disponible';
+
+    await sb.from('dishes').update({ current_stock: newStock, status: newStatus }).eq('id', dishId);
+  }
+
+  await loadDishes();
+  showToast(action === 'sell' ? '📉 -1 vendu' : action === 'add' ? '📈 +1 stock' : '🚫 Marqué épuisé');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function shareShop() {
+  const text = `🍲 Découvrez mes plats du jour sur Maboke !\n${sessionUser?.name || 'Vendeuse'}\n📍 ${sessionUser?.location || 'Brazzaville'}`;
+  if (navigator.share) {
+    navigator.share({ title: 'Maboke', text });
+  } else {
+    navigator.clipboard.writeText(text);
+    showToast('📋 Lien copié !');
+  }
+}
+
+function logout() {
+  localStorage.removeItem('maboke_session');
+  localStorage.removeItem('maboke_vendor_profile');
+  window.location.href = 'index.html';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// START
+init();
+</script>
 </body>
 </html>
-

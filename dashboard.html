@@ -595,6 +595,8 @@ let selectedModalMomo = 'mtn';
 let allOrders = [...DEMO_ORDERS];
 let caJour = 0;
 
+const API = window.location.origin;
+
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
@@ -747,13 +749,29 @@ function confirmPayout() {
   btn.textContent = '⏳ Traitement…';
   btn.disabled = true;
 
-  setTimeout(() => {
+  setTimeout(async () => {
     document.getElementById('modal-content-default').style.display = 'none';
     document.getElementById('modal-content-success').style.display = 'block';
     document.getElementById('success-amount').textContent = caJour.toLocaleString('fr-FR');
     document.getElementById('success-momo').textContent = momoLabel;
 
-    // Sauvegarder dans localStorage (en prod : insert dans table 'paiements')
+    // Appeler l'API backend pour le virement
+    try {
+      const session = JSON.parse(localStorage.getItem('maboke_session') || '{}');
+      await fetch(`${API}/api/payments/payout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: caJour,
+          phone: session.phone || '',
+          vendeur_name: session.name || 'Vendeuse',
+        }),
+      });
+    } catch(e) {
+      console.warn('API payout error:', e);
+    }
+
+    // Sauvegarder dans localStorage
     const paiements = JSON.parse(localStorage.getItem('maboke_paiements') || '[]');
     paiements.push({
       date: new Date().toISOString(),
@@ -788,9 +806,8 @@ function showToast(msg) {
 // ═══════════════════════════════════════════════════════════════
 function logout() {
   localStorage.removeItem('maboke_session');
-  // window.location.href = 'index.html'; // En production
-  showToast('👋 Déconnexion réussie');
-  setTimeout(() => { alert('Redirection vers index.html (page de connexion Maboke)'); }, 1500);
+  localStorage.removeItem('maboke_vendor_profile');
+  window.location.href = 'index.html';
 }
 
 // START

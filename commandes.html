@@ -550,8 +550,16 @@
 
       <!-- Récap -->
       <div class="recap-list" id="recap-list"></div>
+      <div class="recap-total" style="margin-bottom:6px;">
+        <span class="label">Sous-total</span>
+        <span class="amount" id="recap-sous-total" style="font-size:0.9rem;">0 FCFA</span>
+      </div>
+      <div class="recap-total" style="margin-bottom:6px; background:rgba(234,88,12,0.08); border-color:rgba(234,88,12,0.2);">
+        <span class="label">🏷️ Commission Maboke (5%)</span>
+        <span class="amount" id="recap-commission" style="font-size:0.85rem; background:linear-gradient(135deg,#f97316,#facc15); -webkit-background-clip:text; background-clip:text; color:transparent;">0 FCFA</span>
+      </div>
       <div class="recap-total">
-        <span class="label">Total à payer</span>
+        <span class="label">💰 Total à payer</span>
         <span class="amount" id="recap-total-amount">0 FCFA</span>
       </div>
 
@@ -640,6 +648,9 @@ let allPlats     = [];   // données brutes Supabase
 let filteredPlats= [];
 let activeQuartier = 'tous';
 let selectedPaiement = null;
+
+const API = window.location.origin;
+const COMMISSION_RATE = 0.05;
 
 // ═══════════════════════════════════════════════════════
 // CATALOGUE DÉMO (si Supabase vide, on affiche des plats)
@@ -734,6 +745,25 @@ async function init() {
 
 async function loadCatalogue() {
   try {
+    // Essayer via l'API backend (ne montre que les plats en stock)
+    try {
+      const res = await fetch(`${API}/api/vendors/catalogue`);
+      const json = await res.json();
+      if (json.dishes && json.dishes.length > 0) {
+        allPlats = json.dishes.map(d => ({
+          ...d,
+          vendor_name: d.vendors?.name || '—',
+          vendor_location: d.vendors?.location || '',
+          quartier: (d.vendors?.location || '').toLowerCase().replace(/[^a-z-]/g, ''),
+          emoji: getEmoji(d.name),
+        }));
+        filteredPlats = [...allPlats];
+        renderCatalogue();
+        return;
+      }
+    } catch(e) { /* fallback below */ }
+
+    // Fallback: Supabase direct
     const { data, error } = await sb
       .from('dishes')
       .select('*, vendors(name, location)')
@@ -748,7 +778,6 @@ async function loadCatalogue() {
         emoji: getEmoji(d.name),
       }));
     } else {
-      // Fallback démo
       allPlats = DEMO_CATALOGUE;
     }
   } catch(e) {
@@ -917,12 +946,17 @@ function openModal() {
   if (!items.length) return;
 
   // Récap
-  const total = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  const sousTotal = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  const commission = Math.round(sousTotal * COMMISSION_RATE);
+  const total = sousTotal + commission;
+
   document.getElementById('recap-list').innerHTML = items.map(i => `
     <div class="recap-row">
       <span class="rname">${i.dish.emoji || '🍽️'} ${i.dish.name} × ${i.qty}</span>
       <span class="rprice">${(i.dish.price * i.qty).toLocaleString('fr-FR')} FCFA</span>
     </div>`).join('');
+  document.getElementById('recap-sous-total').textContent = sousTotal.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('recap-commission').textContent = '+' + commission.toLocaleString('fr-FR') + ' FCFA';
   document.getElementById('recap-total-amount').textContent = total.toLocaleString('fr-FR') + ' FCFA';
 
   // Reset paiement
@@ -979,29 +1013,59 @@ async function confirmerPaiement() {
   btn.querySelector('.btn-inner').textContent = '⏳ Traitement en cours…';
 
   const items = Object.values(panier);
-  const total = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
-  const ref   = 'MBK-' + Date.now().toString(36).toUpperCase();
+  const sousTotal = items.reduce((s, i) => s + i.dish.price * i.qty, 0);
+  const commission = Math.round(sousTotal * COMMISSION_RATE);
+  const total = sousTotal + commission;
+  const adresseDetail = document.getElementById('adresse-detail').value.trim();
 
-  // ── En production : insérer dans Supabase + appeler API paiement ──
-  // const { error } = await sb.from('commandes').insert([{
-  //   client_id:   sessionUser?.id,
-  //   montant:     total,
-  //   operateur:   selectedPaiement,
-  //   numero_momo: numero,
-  //   reference:   ref,
-  //   items:       JSON.stringify(items.map(i => ({ id:i.dish.id, qty:i.qty, prix:i.dish.price }))),
-  //   statut:      'en_attente',
-  // }]);
+  let ref = 'MBK-' + Date.now().toString(36).toUpperCase();
 
-  // Simulation paiement
-  await new Promise(r => setTimeout(r, 2000));
+  try {
+    // 1. Créer la commande via le backend (avec commission)
+    const orderRes = await fetch(`${API}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_name: sessionUser?.name || 'Client',
+        client_phone: sessionUser?.phone || '',
+        items: items.map(i => ({
+          id: i.dish.id, nom: i.dish.name, qty: i.qty,
+          prix: i.dish.price, vendeur: i.dish.vendor_name,
+          current_stock: i.dish.current_stock,
+        })),
+        operateur: selectedPaiement,
+        numero_momo: numero,
+        quartier: sessionUser?.quartier || '',
+        adresse_detail: adresseDetail,
+      }),
+    });
+    const orderData = await orderRes.json();
+    if (orderData.reference) ref = orderData.reference;
 
-  // Sauvegarder localement
+    // 2. Déclencher le paiement MoMo
+    const payRes = await fetch(`${API}/api/payments/collect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: total,
+        phone: numero,
+        reference: ref,
+        payerMessage: `Maboke — Commande ${ref} — ${total} FCFA`,
+      }),
+    });
+    const payData = await payRes.json();
+    console.log('[Payment]', payData);
+  } catch(e) {
+    console.warn('API error, continuing with local save:', e);
+  }
+
+  // Sauvegarder localement aussi
   const historique = JSON.parse(localStorage.getItem('maboke_commandes') || '[]');
   historique.push({
     ref, date: new Date().toISOString(),
     items: items.map(i => ({ nom: i.dish.name, qty: i.qty, prix: i.dish.price })),
-    total, operateur: selectedPaiement, numero, statut: 'confirmée',
+    sous_total: sousTotal, commission, total,
+    operateur: selectedPaiement, numero, statut: 'confirmée',
   });
   localStorage.setItem('maboke_commandes', JSON.stringify(historique));
 

@@ -685,6 +685,8 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentLoginRole = 'vendeuse';
 let currentUser = null;
 
+const API = window.location.origin;
+
 // ── Navigation ────────────────────────────────────────────────────────────
 function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -758,18 +760,38 @@ async function registerVendeuse() {
   let photo_url = '';
   if (photoFile) photo_url = await fileToBase64(photoFile);
 
-  const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
-  if (users.find(u => u.phone === phone)) return showMsg('err-vendeuse','error','⚠️ Ce numéro est déjà enregistré.');
-
-  const newUser = {
+  const userData = {
     role: 'vendeuse', name, location, momo, phone, address, password, photo_url,
     created_at: new Date().toISOString()
   };
-  users.push(newUser);
+
+  // Essayer via l'API backend
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    const data = await res.json();
+    if (res.status === 409) return showMsg('err-vendeuse','error','⚠️ ' + data.error);
+    if (data.user) {
+      showMsg('ok-vendeuse','success','✅ Compte créé ! Redirection vers votre espace…');
+      setTimeout(() => redirectVendeuse(data.user), 1200);
+      return;
+    }
+  } catch(e) {
+    console.warn('API non disponible, fallback local');
+  }
+
+  // Fallback localStorage
+  const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
+  if (users.find(u => u.phone === phone)) return showMsg('err-vendeuse','error','⚠️ Ce numéro est déjà enregistré.');
+
+  users.push(userData);
   localStorage.setItem('maboke_users', JSON.stringify(users));
 
   showMsg('ok-vendeuse','success','✅ Compte créé ! Redirection vers votre espace…');
-  setTimeout(() => redirectVendeuse(newUser), 1200);
+  setTimeout(() => redirectVendeuse(userData), 1200);
 }
 
 // ── REGISTER CLIENT ───────────────────────────────────────────────────────
@@ -788,30 +810,70 @@ async function registerClient() {
   let photo_url = '';
   if (photoFile) photo_url = await fileToBase64(photoFile);
 
+  const userData = { role:'client', name, momo, phone, quartier, password, photo_url, created_at: new Date().toISOString() };
+
+  // Essayer via l'API backend
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    const data = await res.json();
+    if (res.status === 409) return showMsg('err-client','error','⚠️ ' + data.error);
+    if (data.user) {
+      showMsg('ok-client','success','✅ Compte créé ! Connexion en cours…');
+      setTimeout(() => loadDashboard(data.user), 1200);
+      return;
+    }
+  } catch(e) {
+    console.warn('API non disponible, fallback local');
+  }
+
+  // Fallback localStorage
   const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
   if (phone && users.find(u => u.phone === phone)) return showMsg('err-client','error','⚠️ Ce numéro est déjà enregistré.');
 
-  const newUser = { role:'client', name, momo, phone, quartier, password, photo_url, created_at: new Date().toISOString() };
-  users.push(newUser);
+  users.push(userData);
   localStorage.setItem('maboke_users', JSON.stringify(users));
 
   showMsg('ok-client','success','✅ Compte créé ! Connexion en cours…');
-  setTimeout(() => loadDashboard(newUser), 1200);
+  setTimeout(() => loadDashboard(userData), 1200);
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
-function loginUser() {
+async function loginUser() {
   const phone    = document.getElementById('login-phone').value.trim();
   const password = document.getElementById('login-password').value;
 
   if (!phone || !password) return showMsg('err-login','error','⚠️ Veuillez remplir tous les champs.');
 
+  // Essayer via l'API backend
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password, role: currentLoginRole }),
+    });
+    const data = await res.json();
+    if (data.user) {
+      if (data.user.role === 'vendeuse') {
+        redirectVendeuse(data.user);
+      } else {
+        loadDashboard(data.user);
+      }
+      return;
+    }
+  } catch(e) {
+    console.warn('API non disponible, fallback local');
+  }
+
+  // Fallback localStorage
   const users = JSON.parse(localStorage.getItem('maboke_users') || '[]');
   const user  = users.find(u => u.phone === phone && u.password === password && u.role === currentLoginRole);
 
   if (!user) return showMsg('err-login','error','❌ Numéro, mot de passe ou rôle incorrect.');
 
-  // ── ROUTING : vendeuse → vendeuse.html, client → dashboard intégré
   if (user.role === 'vendeuse') {
     redirectVendeuse(user);
   } else {
@@ -887,7 +949,7 @@ function loadDashboard(user) {
 }
 
 function openMainApp() {
-  alert('🛒 Redirection vers le catalogue client (maboke.html).');
+  window.location.href = 'commandes.html';
 }
 
 function logout() {
